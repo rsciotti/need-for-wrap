@@ -43,7 +43,7 @@ public class WrapController : MonoBehaviour
     {
         Vector3Int cell = _tileMap.WorldToCell(location);
         BubbleTile oldTile = _tileMap.GetTile<BubbleTile>(cell);
-        if (oldTile.popped)
+        if (!oldTile || oldTile.popped)
         {
             return;
         }
