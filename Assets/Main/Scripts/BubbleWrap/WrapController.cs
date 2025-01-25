@@ -1,3 +1,4 @@
+using Main.Scripts;
 using Ricky.Scripts;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -9,6 +10,8 @@ public class WrapController : MonoBehaviour
 
     [SerializeField] private BubbleTile poppedTile;
     [SerializeField] private BubbleTile unpoppedTile;
+
+    [SerializeField] private AudioClip[] poppingSounds;
 
     public Transform player;
     
@@ -39,7 +42,13 @@ public class WrapController : MonoBehaviour
     public void PopAtLocation(Vector2 location)
     {
         Vector3Int cell = _tileMap.WorldToCell(location);
+        BubbleTile oldTile = _tileMap.GetTile<BubbleTile>(cell);
+        if (!oldTile || oldTile.popped)
+        {
+            return;
+        }
         _tileMap.SetTile(cell, poppedTile);
+        SoundManager.Instance.PlaySoundEffect(poppingSounds[Random.Range(0, 100) % poppingSounds.Length]);
     }
 
     /// <summary>
