@@ -1,3 +1,4 @@
+using Ricky.Scripts;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -6,14 +7,28 @@ public class WrapController : MonoBehaviour
 
     private Tilemap _tileMap;
 
-    [SerializeField] private TileBase[] unpoppedTiles;
-    [SerializeField] private TileBase[] poppedTiles;
+    [SerializeField] private BubbleTile poppedTile;
+    [SerializeField] private BubbleTile unpoppedTile;
     
     void Start()
     {
         _tileMap = transform.Find("Tilemap").gameObject.GetComponent<Tilemap>();
+        InitializeGrid();
     }
-    
+
+    private void InitializeGrid()
+    {
+        
+        for (int x = -30; x < 30; x++)
+        {
+            for (int y = -20; y < 20; y++)
+            {
+                _tileMap.SetTile(new Vector3Int(x,y,0), unpoppedTile);
+            }
+        }
+        
+    }
+
     void Update()
     {
         PopAtLocation(Camera.main.ScreenToWorldPoint(Input.mousePosition));
@@ -22,7 +37,7 @@ public class WrapController : MonoBehaviour
     public void PopAtLocation(Vector2 location)
     {
         Vector3Int cell = _tileMap.WorldToCell(location);
-        _tileMap.SetTile(cell, poppedTiles[Random.Range(0, 100) % poppedTiles.Length]);
+        _tileMap.SetTile(cell, poppedTile);
     }
 
     /// <summary>
