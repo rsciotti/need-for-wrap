@@ -152,6 +152,7 @@ GameObject:
   - component: {fileID: 4848703953180610746}
   - component: {fileID: 4645607101905724083}
   - component: {fileID: 2319974070231497116}
+  - component: {fileID: 7865236197259870899}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -304,6 +305,23 @@ MonoBehaviour:
   acceleration: 7
   steering: 2
   drift: 0.75
+--- !u!114 &7865236197259870899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4711256258000313102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 004de942ad7474f6a9df2de44fb7d5d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthChangeEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  health: 5
+  maxHealth: 10
 --- !u!1 &6436250202576952006
 GameObject:
   m_ObjectHideFlags: 0

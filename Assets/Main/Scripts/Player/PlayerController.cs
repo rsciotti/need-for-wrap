@@ -3,19 +3,12 @@ using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
-    public UnityEvent<int> healthChangeEvent;
 
 public float MaxSpeed;
 public float acceleration;
 public float steering;
 
 public float drift = 2.0f;
-
-[SerializeField]
-private int health = 5;
-
-[SerializeField]
-private int maxHealth = 10;
 
 Rigidbody2D rb;
 
@@ -26,9 +19,6 @@ float y = 1;
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        if (healthChangeEvent == null) {
-            healthChangeEvent = new UnityEvent<int>();
-        }
     }
 
     // Update is called once per frame
@@ -69,26 +59,5 @@ float y = 1;
         }
 
         //Debug.DrawLine(rb.position, rb.GetRelativePoint(relativeForce), Color.green, 2, false);
-    }
-
-    public void Damage(int amount) {
-        SetHealth(health - amount);
-    }
-
-    public void Heal(int amount) {
-        SetHealth(health + amount);
-    }
-
-    public int GetHealth() {
-        return health;
-    }
-
-    private void SetHealth(int newHealth) {
-        health = newHealth;
-        healthChangeEvent.Invoke(health);
-    }
-
-    public int GetMaxHealth() {
-        return maxHealth;
     }
 }
