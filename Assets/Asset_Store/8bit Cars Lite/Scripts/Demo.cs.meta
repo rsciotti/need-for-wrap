@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 6495ab3f831b00642bfcdc4cbe2c556b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 159552
+  packageName: 8bit Cars Lite
+  packageVersion: 1.0
+  assetPath: Assets/8bit Cars Lite/Scripts/Demo.cs
+  uploadId: 343753

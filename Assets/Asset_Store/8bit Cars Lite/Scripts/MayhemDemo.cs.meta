@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: fffb7db2b4fe14140acb90227f9fc881
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 159552
+  packageName: 8bit Cars Lite
+  packageVersion: 1.0
+  assetPath: Assets/8bit Cars Lite/Scripts/MayhemDemo.cs
+  uploadId: 343753

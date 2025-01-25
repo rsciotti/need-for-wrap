@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 5d0c7c65eb8c3af47b06dc1ac2dc5203
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 159552
+  packageName: 8bit Cars Lite
+  packageVersion: 1.0
+  assetPath: Assets/8bit Cars Lite/Scripts/CarFactory.cs
+  uploadId: 343753
