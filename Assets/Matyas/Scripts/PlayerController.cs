@@ -1,70 +1,61 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float drag = 0.1f;
-    [SerializeField] private float turnSpeed = 200f;
+public float MaxSpeed;
+public float acceleration;
+public float steering;
 
-    private PlayerControls playerControls;
-    private Vector2 movement;
-    private Rigidbody2D rb;
-    private Vector2 velocity;
+public float drift = 2.0f;
 
-    private void Awake()
+Rigidbody2D rb;
+
+float x;
+float y = 1;
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
     {
-        playerControls = new PlayerControls();
         rb = GetComponent<Rigidbody2D>();
     }
 
-    private void OnEnable()
+    // Update is called once per frame
+    void Update()
     {
-        playerControls.Enable();
+        x = Input.GetAxis("Horizontal");
+        y = Input.GetAxis("Vertical");
+
     }
-
-    private void OnDisable()
+    void FixedUpdate()
     {
-        playerControls.Disable();
-    }
+        Vector2 speed = transform.up * (y * acceleration);
+        rb.AddForce(speed);
 
-    private void Update()
-    {
-        PlayerInput();
-    }
+        float direction = Vector2.Dot(rb.linearVelocity, rb.GetRelativeVector(Vector2.up));
 
-    private void FixedUpdate()
-    {
-        Move();
-    }
-
-    private void PlayerInput()
-    {
-        movement += playerControls.Movement.Move.ReadValue<Vector2>();
-    }
-
-    private void Move()
-    {
-        // Calculate the desired velocity based on input
-        Vector2 desiredVelocity = movement * moveSpeed;
-
-        // Interpolate between current velocity and desired velocity to create momentum
-        velocity = Vector2.Lerp(velocity, desiredVelocity, Time.fixedDeltaTime);
-
-        // Apply drag to simulate friction
-        velocity *= (1 - drag * Time.fixedDeltaTime);
-
-        // Move the object based on velocity
-        rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
-
-        // Calculate rotation based on the velocity direction, making sure it's smooth
-        if (velocity != Vector2.zero)
+        if(acceleration > 0)
         {
-            float targetAngle = Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg - 90f;
-            float angle = Mathf.LerpAngle(rb.rotation, targetAngle, turnSpeed * Time.fixedDeltaTime);
-            rb.rotation = angle;
+            if(direction > 0)
+            {
+                rb.rotation -= x * steering * (rb.linearVelocity.magnitude / MaxSpeed);
+            }
+            else
+            {
+                rb.rotation += x * steering * (rb.linearVelocity.magnitude / MaxSpeed);
+            }
         }
+
+        float driftForce = Vector2.Dot(rb.linearVelocity, rb.GetRelativeVector(Vector2.left)) * drift;
+
+        Vector2 relativeForce = Vector2.right * driftForce;
+
+        rb.AddForce(rb.GetRelativeVector(relativeForce));
+
+        if(rb.linearVelocity.magnitude > MaxSpeed)
+        {
+            rb.linearVelocity = rb. linearVelocity.normalized * MaxSpeed;
+        }
+
+        //Debug.DrawLine(rb.position, rb.GetRelativePoint(relativeForce), Color.green, 2, false);
     }
 }
