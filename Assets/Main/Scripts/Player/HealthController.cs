@@ -11,11 +11,23 @@ public class HealthController : MonoBehaviour
     [SerializeField]
     private int maxHealth = 10;
 
+    private GameObject[] healthBubbleObjs;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         if (healthChangeEvent == null) {
             healthChangeEvent = new UnityEvent<int>();
+        }
+
+        healthBubbleObjs = new GameObject[maxHealth];
+        CreateHealthBar();
+    }
+
+    private void CreateHealthBar() {
+        Vector2 position = gameObject.transform.position;
+        foreach (GameObject healthBubble in healthBubbleObjs) {
+            
         }
     }
 
