@@ -9,6 +9,8 @@ public class WrapController : MonoBehaviour
 
     [SerializeField] private BubbleTile poppedTile;
     [SerializeField] private BubbleTile unpoppedTile;
+
+    public Transform player;
     
     void Start()
     {
@@ -31,7 +33,7 @@ public class WrapController : MonoBehaviour
 
     void Update()
     {
-        PopAtLocation(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        PopAtLocation(player.position);
     }
 
     public void PopAtLocation(Vector2 location)

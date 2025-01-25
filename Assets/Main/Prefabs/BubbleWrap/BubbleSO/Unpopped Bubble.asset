@@ -10,9 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2043c698aa48426cb734774afee90f35, type: 3}
-  m_Name: PoppedBubble
+  m_Name: Unpopped Bubble
   m_EditorClassIdentifier: 
-  popped: 1
+  popped: 0
   spriteVariations:
-  - {fileID: -2952082898582108307, guid: 3f68b6ea55ea6484ba2bba23f456e4da, type: 3}
-  - {fileID: -4500277291670047086, guid: cd1ccb292867a1749a5b86736329de4a, type: 3}
+  - {fileID: 8228057813299080352, guid: 2112f1b36190e7f40850180458147cd0, type: 3}
+  - {fileID: 4326282005171522551, guid: c35f9c7604b1bd84384e5f424faf760f, type: 3}
+  - {fileID: 2479202990547934467, guid: 909a1a94f82ab5e4a85e61119663eb48, type: 3}
