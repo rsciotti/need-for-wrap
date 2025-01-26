@@ -30,34 +30,40 @@ float y = 1;
     }
     void FixedUpdate()
     {
-        Vector2 speed = transform.up * (y * acceleration);
-        rb.AddForce(speed);
-
-        float direction = Vector2.Dot(rb.linearVelocity, rb.GetRelativeVector(Vector2.up));
-
-        if(acceleration > 0)
+        if (Input.GetJoystickNames().Length > 0 && x != 0 || y != 0)
         {
-            if(direction > 0)
+            // Handle your controller-specific logic here
+            // Move the object based on controller input
+            
+            Vector2 speed = transform.up * (y * acceleration);
+            rb.AddForce(speed);
+
+            float direction = Vector2.Dot(rb.linearVelocity, rb.GetRelativeVector(Vector2.up));
+
+            if(acceleration > 0)
             {
-                rb.rotation -= x * steering * (rb.linearVelocity.magnitude / MaxSpeed);
+                if(direction > 0)
+                {
+                    rb.rotation -= x * steering * (rb.linearVelocity.magnitude / MaxSpeed);
+                }
+                else
+                {
+                    rb.rotation += x * steering * (rb.linearVelocity.magnitude / MaxSpeed);
+                }
             }
-            else
+
+            float driftForce = Vector2.Dot(rb.linearVelocity, rb.GetRelativeVector(Vector2.left)) * drift;
+
+            Vector2 relativeForce = Vector2.right * driftForce;
+
+            rb.AddForce(rb.GetRelativeVector(relativeForce));
+
+            if(rb.linearVelocity.magnitude > MaxSpeed)
             {
-                rb.rotation += x * steering * (rb.linearVelocity.magnitude / MaxSpeed);
+                rb.linearVelocity = rb. linearVelocity.normalized * MaxSpeed;
             }
-        }
-
-        float driftForce = Vector2.Dot(rb.linearVelocity, rb.GetRelativeVector(Vector2.left)) * drift;
-
-        Vector2 relativeForce = Vector2.right * driftForce;
-
-        rb.AddForce(rb.GetRelativeVector(relativeForce));
-
-        if(rb.linearVelocity.magnitude > MaxSpeed)
-        {
-            rb.linearVelocity = rb. linearVelocity.normalized * MaxSpeed;
-        }
 
         //Debug.DrawLine(rb.position, rb.GetRelativePoint(relativeForce), Color.green, 2, false);
+        }
     }
 }
