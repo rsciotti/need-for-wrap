@@ -9,6 +9,10 @@ public class BubblesPoppedCounterScript : MonoBehaviour
     [ContextMenu("incrementPopped")]
     public void incrementPopped(int playerNum)
     {
+        if (playerNum < 0 || playerNum >= bubblesPopped.Length) {
+            return;
+        }
+
         bubblesPopped[playerNum]++;
         BubblesPoppedText[playerNum].text = bubblesPopped[playerNum].ToString();
     }

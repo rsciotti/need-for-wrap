@@ -2,9 +2,13 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using System.Collections;
+using System;
+using Main.Scripts;
 
 public class HealthController : MonoBehaviour
 {
+    static System.Random rng = new System.Random();
+
     public UnityEvent<int> healthChangeEvent;
 
     [SerializeField]
@@ -21,6 +25,13 @@ public class HealthController : MonoBehaviour
 
     [SerializeField]
     private float healthBarShowTimeSeconds = 2f;
+
+    [SerializeField]
+    private GameObject deathAnimation;
+
+    // Different sounds to choose from to make thing interesting
+    [SerializeField]
+    private AudioClip[] deathSounds;
 
     private GameObject healthBarBackground;
     private GameObject healthBarForeground;
@@ -58,14 +69,36 @@ public class HealthController : MonoBehaviour
     }
 
     private void UpdateHealth(int newHealth) {
+        if (!gameObject.activeSelf) {
+            return;
+        }
+
+        // Restrict health to be 0 minimum
         health = newHealth;
-        if (health < 0) {
+        if (health <= 0) {
             health = 0;
         }
-        float newXScale = ((float) newHealth / maxHealth) * healthBarBackground.transform.localScale.x;
-        healthBarForeground.transform.localScale = new Vector3(newXScale, healthBarBackground.transform.localScale.y, 1f);
+
+        // Notify listeners
         healthChangeEvent.Invoke(health);
-        StartCoroutine(ShowHealthBarTemporarily());
+
+        if (health == 0) {
+            OnDeath();
+            return;
+        }
+
+        // Show health bar
+        float newXScale = ((float) health / maxHealth) * healthBarBackground.transform.localScale.x;
+        healthBarForeground.transform.localScale = new Vector3(newXScale, healthBarBackground.transform.localScale.y, 1f);
+        if (!gameObject.activeSelf) {
+            StartCoroutine(ShowHealthBarTemporarily());
+        }
+    }
+
+    private void OnDeath() {
+        Instantiate(deathAnimation, transform.position, Quaternion.identity);
+        SoundManager.Instance.PlaySoundEffect(deathSounds[rng.Next(deathSounds.Length)]);
+        gameObject.SetActive(false);
     }
 
     public int GetMaxHealth() {

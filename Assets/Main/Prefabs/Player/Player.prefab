@@ -360,6 +360,10 @@ MonoBehaviour:
   healthBarOffset: {x: -1, y: 1}
   healthBar: {fileID: 871741389523436071, guid: 293b0a3755cf84089bb0f1e0b1390168, type: 3}
   healthBarShowTimeSeconds: 2
+  deathAnimation: {fileID: 139366, guid: b185c1a9cf067374586d095111b15bd1, type: 3}
+  deathSounds:
+  - {fileID: 8300000, guid: f0bba60dd1813bd40af826dbaa99b983, type: 3}
+  - {fileID: 8300000, guid: f0bba60dd1813bd40af826dbaa99b983, type: 3}
 --- !u!61 &-3306607039945608131
 BoxCollider2D:
   m_ObjectHideFlags: 0
