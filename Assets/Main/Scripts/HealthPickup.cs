@@ -3,7 +3,7 @@ using UnityEngine;
 public class HealthPickup : MonoBehaviour
 {
     // This function is called when the collider attached to this GameObject collides with another collider
-    void OnCollisionEnter2D(Collision2D collision)
+    void OnTriggerEnter2D(Collider2D collision)
     {
         //Debug.Log("collision!!");
 
@@ -15,7 +15,7 @@ public class HealthPickup : MonoBehaviour
         if (healthController != null)
         {
             //Debug.Log("healthController not null!");
-            healthController.Heal(5);
+            healthController.Heal(3);
             Destroy(gameObject);
         }
 

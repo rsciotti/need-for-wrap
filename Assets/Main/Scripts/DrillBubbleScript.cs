@@ -3,7 +3,7 @@ using UnityEngine;
 public class DrillBubbleScript : MonoBehaviour
 {
     // This function is called when the collider attached to this GameObject collides with another collider
-    void OnCollisionEnter2D(Collision2D collision)
+    void OnTriggerEnter2D(Collider2D collision)
     {
         //Debug.Log("collision!!");
 
