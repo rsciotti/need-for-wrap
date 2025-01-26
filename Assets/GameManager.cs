@@ -81,7 +81,7 @@ namespace Main.Scripts
 
         private void OnPlayerHealthChange(int health, int index) {
             if (health == 0) {
-                _wrapController.PopWithinRadius(_playerList[index].transform.position, 6f);
+                _wrapController.PopWithinRadius(_playerList[index].transform.position, 3f);
             }
         }
 
