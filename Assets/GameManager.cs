@@ -2,12 +2,17 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
+
 
 namespace Main.Scripts
 {
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
+        public int winningScore = 600;
+        public GameObject winPanel;
+        public TextMeshProUGUI winText;
 
         [SerializeField] private WrapController _wrapController;
         [SerializeField] private GameObject _aiCarControllerGameObj;
@@ -24,6 +29,7 @@ namespace Main.Scripts
 
         private void Awake()
         {
+            winPanel.SetActive(false);
             if (Instance != null && Instance != this) 
             { 
                 Destroy(this); 
@@ -66,6 +72,13 @@ namespace Main.Scripts
             {
                 if (_wrapController.PopAtLocation(player.transform.position)) {
                     _popCounter.incrementPopped(player.playerIndex);
+
+                    if(_popCounter.bubblesPopped[player.playerIndex] >= winningScore)
+                    {
+                        winPanel.SetActive(true);
+                        string text = "Player " + player.playerIndex + " wins!\n Popped " + winningScore + " bubbles!";
+                        winText.text = text;
+                    }
                 }
             }
 
