@@ -37,7 +37,6 @@ public class AICarController : BaseVehicle
                 Move(.7f, 1);
                 break;
         }
-        Debug.Log(_currentState);
     }
 
     private void MoveTowards(Vector2 target)

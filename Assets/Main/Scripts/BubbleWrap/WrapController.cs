@@ -68,7 +68,7 @@ public class WrapController : MonoBehaviour
         int poppedBubbles = 0;
 
         // Higher scale will leave some bubbles unpopped (0.5f to pop all bubbles)
-        IEnumerable<Vector2> pointsInCircle = PointsInCircle(center, radius, 0.5f);
+        IEnumerable<Vector2> pointsInCircle = PointsInCircle(center, radius, 1f);
         foreach (Vector2 point in pointsInCircle) {
             if (PopAtLocation(point)) {
                 poppedBubbles++;

@@ -90,7 +90,7 @@ public class HealthController : MonoBehaviour
         // Show health bar
         float newXScale = ((float) health / maxHealth) * healthBarBackground.transform.localScale.x;
         healthBarForeground.transform.localScale = new Vector3(newXScale, healthBarBackground.transform.localScale.y, 1f);
-        if (!gameObject.activeSelf) {
+        if (gameObject.activeSelf) {
             StartCoroutine(ShowHealthBarTemporarily());
         }
     }

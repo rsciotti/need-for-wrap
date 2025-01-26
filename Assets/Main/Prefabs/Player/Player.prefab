@@ -216,7 +216,7 @@ MonoBehaviour:
   healthChangeEvent:
     m_PersistentCalls:
       m_Calls: []
-  health: 5
+  health: 10
   maxHealth: 10
   healthBarOffset: {x: -1, y: 1}
   healthBar: {fileID: 871741389523436071, guid: 293b0a3755cf84089bb0f1e0b1390168, type: 3}
