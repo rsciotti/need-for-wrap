@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      DrillBubble_0: -6930408379582443458
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

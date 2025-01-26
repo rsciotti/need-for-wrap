@@ -10,10 +10,12 @@ namespace Main.Scripts
         public static GameManager Instance { get; private set; }
 
         [SerializeField] private WrapController _wrapController;
-        
+        [SerializeField] private GameObject _aiCarControllerGameObj;
+
         private PlayerInputManager _playerInputManager;
 
         private List<PlayerInput> _playerList;
+        private List<GameObject> _aiCarObjList;
 
         private void Awake()
         {
@@ -27,6 +29,7 @@ namespace Main.Scripts
                 _playerInputManager.onPlayerJoined += OnPlayerJoined;
                 _playerInputManager.onPlayerLeft += OnPlayerLeft;
                 _playerList = new();
+                _aiCarObjList = new();
                 Instance = this;
             }
         }
@@ -35,6 +38,7 @@ namespace Main.Scripts
         private void OnPlayerJoined(PlayerInput playerInput)
         {
             _playerList.Add(playerInput);
+            _aiCarObjList.Add(Instantiate(_aiCarControllerGameObj, new Vector3(0, 0, 0), Quaternion.identity));
         }
         
         private void OnPlayerLeft(PlayerInput playerInput)
@@ -56,6 +60,10 @@ namespace Main.Scripts
             foreach (PlayerInput player in _playerList)
             {
                 _wrapController.PopAtLocation(player.transform.position);
+            }
+
+            foreach (GameObject aiCar in _aiCarObjList) {
+                _wrapController.PopAtLocation(aiCar.transform.position);
             }
         }
     }
