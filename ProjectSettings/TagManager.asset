@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - BubblesPoppedLogic
   layers:
   - Default
   - TransparentFX
@@ -49,6 +50,9 @@ TagManager:
     locked: 0
   - name: Cars
     uniqueID: 1372805969
+    locked: 0
+  - name: UI
+    uniqueID: 3425540535
     locked: 0
   m_RenderingLayers:
   - Default
