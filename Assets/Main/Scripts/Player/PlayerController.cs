@@ -15,6 +15,23 @@ Rigidbody2D rb;
 float x;
 float y = 1;
 
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        Collider2D collider = collision.collider;
+        
+        //Debug.Log("collider: " + collider.gameObject.name);
+        if(collider.gameObject.name.StartsWith("Drill"))
+        {
+            //Debug.Log("Drill: " + collider.gameObject.name);
+            HealthController healthController = gameObject.GetComponent<HealthController>();
+            if(healthController != null)
+            {
+                //Debug.Log("healthController: not null");
+                healthController.Damage(3);
+            }
+        }
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected void Start()
     {
