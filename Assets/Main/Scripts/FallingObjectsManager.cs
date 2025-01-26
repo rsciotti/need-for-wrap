@@ -48,18 +48,22 @@ public class ObjectSpawner : MonoBehaviour
         Quaternion rotation = oldObject.transform.rotation;
 
         // Instantiate the replacement object 20 units above the original position
-        Vector3 replacementPosition = originalPosition + new Vector3(0, 100f, 0);
+        Vector3 replacementPosition = originalPosition + new Vector3(0, 20f, 0);
         GameObject newObject = Instantiate(replacementObject, replacementPosition, rotation);
 
         // Start the coroutine to move the replacement object down
         yield return StartCoroutine(MoveDown(newObject, originalPosition, oldObject));
+
+        // Start the coroutine to destroy the replacement object after 5 seconds
+        yield return new WaitForSeconds(5f);
+        Destroy(newObject);
     }
 
     private IEnumerator MoveDown(GameObject obj, Vector3 targetPosition, GameObject oldObject)
     {
-        float speed = 50f; // Speed at which the object will move down
+        float speed = 20f; // Speed at which the object will move down
         float moveDuration = 20f / speed; // Time it will take to move down
-        float timeToWaitBeforeDestroying = moveDuration - 0.01f; // Time to wait before destroying the old object
+        float timeToWaitBeforeDestroying = moveDuration - 1f; // Time to wait before destroying the old object
 
         // Wait for the specified time before destroying the old object
         yield return new WaitForSeconds(timeToWaitBeforeDestroying);
