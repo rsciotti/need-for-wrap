@@ -26,7 +26,10 @@ namespace Main.Scripts
         public List<Sprite> _availableCarSprites;
         private List<PlayerInput> _playerList;
         private List<GameObject> _aiCarObjList;
-
+        
+        private float timer = 6f;
+        private float interval = 8f; // Time interval in seconds
+        
         public WrapController GetWrapController() {
             return _wrapController;
         }
@@ -58,7 +61,6 @@ namespace Main.Scripts
             _playerList.Add(playerInput);
             _playerInputManager.onPlayerJoined += OnPlayerJoined;
             _playerInputManager.onPlayerLeft += OnPlayerLeft;
-            _aiCarObjList.Add(Instantiate(_aiCarControllerGameObj, new Vector3(0, 0, 0), Quaternion.identity));
 
             ListenToPlayerHealthChange(playerInput);
         }
@@ -94,6 +96,17 @@ namespace Main.Scripts
 
         private void Update()
         {
+            
+            timer += Time.deltaTime;
+            
+            if (timer >= interval)
+            {
+                _aiCarObjList.Add(Instantiate(_aiCarControllerGameObj, new Vector3(Random.Range(-10f, 10f), Random.Range(-10f, 10f), 0), Quaternion.identity));
+                
+                // Reset the timer
+                timer = 0f;
+            }
+            
             foreach (PlayerInput player in _playerList)
             {
                 if (_wrapController.PopAtLocation(player.transform.position)) {
