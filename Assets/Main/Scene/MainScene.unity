@@ -119,6 +119,58 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &451385146
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 451385147}
+  - component: {fileID: 451385148}
+  m_Layer: 0
+  m_Name: FallingObjectsManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &451385147
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 451385146}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.7776527, y: 5.342098, z: -0.16336514}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &451385148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 451385146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7f12bf2d39e2f44cb2b1775eb2f452f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectToSpawn: {fileID: 7005226000811878648, guid: 38b2f8dbb2956b949935341a5b1c77b0, type: 3}
+  replacementObject: {fileID: 5232351132875858852, guid: 8cf6ad2701cd98c498e18002da34d14b, type: 3}
+  minX: -45
+  maxX: 33.8
+  minY: -13.8
+  maxY: 20
+  minZ: 0
+  maxZ: 0
 --- !u!114 &938924735 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8758848300489048440, guid: 757c12c28ad89be41a789e1165d9b56a, type: 3}
@@ -565,3 +617,4 @@ SceneRoots:
   - {fileID: 8387094284180228957}
   - {fileID: 3479497058460713100}
   - {fileID: 8265659005683383885}
+  - {fileID: 451385147}
