@@ -14,11 +14,13 @@ public class WrapController : MonoBehaviour
     [SerializeField] private AudioClip[] poppingSounds;
 
     public Transform player;
-    
+
+    public BubblesPoppedCounterScript popCounter;
+
     void Start()
     {
         _tileMap = transform.Find("Tilemap").gameObject.GetComponent<Tilemap>();
-        // _tileMap.color = new Color(255, 255, 255, .9f);
+        popCounter = GameObject.FindGameObjectWithTag("BubblesPoppedLogic").GetComponent<BubblesPoppedCounterScript>();
     }
 
     private void InitializeGrid()
@@ -49,6 +51,18 @@ public class WrapController : MonoBehaviour
         }
         _tileMap.SetTile(cell, poppedTile);
         SoundManager.Instance.PlaySoundEffect(poppingSounds[Random.Range(0, 100) % poppingSounds.Length]);
+        if (player.gameObject.name == "Player (1)")
+            popCounter.incrementPopped(0);
+        if (player.gameObject.name == "Player (2)")
+            popCounter.incrementPopped(1);
+        if (player.gameObject.name == "Player (3)")
+            popCounter.incrementPopped(2);
+        if (player.gameObject.name == "Player (4)")
+            popCounter.incrementPopped(3);
+        if (player.gameObject.name == "Player (5)")
+            popCounter.incrementPopped(4);
+        if (player.gameObject.name == "Player (6)")
+            popCounter.incrementPopped(5);
     }
 
     /// <summary>
