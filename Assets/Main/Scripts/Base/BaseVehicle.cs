@@ -33,31 +33,10 @@ public abstract class BaseVehicle : MonoBehaviour
     // Update is called once per frame
     protected virtual void Update()
     {
-        //DetectFrontCollision();
+    
     }
 
     protected abstract void FixedUpdate();
-
-    void DetectFrontCollision()
-    {
-        // Define the ray direction (up direction for the front of the GameObject)
-        Vector2 rayDirection = transform.up;
-
-        // Cast the ray and check for collisions
-        Vector2 frontRayCastPos = transform.position + transform.up * collider2D.bounds.extents.y * 2;
-        RaycastHit2D hit = Physics2D.Raycast(frontRayCastPos, rayDirection, rayDistance, collisionLayer);
-        Debug.DrawRay(frontRayCastPos, transform.up, Color.red);
-        
-        // Check if the ray hit something
-        if (hit.collider != null && hit.collider.gameObject != gameObject)
-        {
-            Debug.Log("Collision detected with " + hit.collider.name);
-            HealthController healthController = hit.collider.gameObject.GetComponent<HealthController>();
-            if (healthController != null) {
-                healthController.Damage(frontCollisionDamage);
-            }
-        }
-    }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
