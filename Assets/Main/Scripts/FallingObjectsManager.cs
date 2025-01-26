@@ -56,6 +56,11 @@ public class ObjectSpawner : MonoBehaviour
         // Start the coroutine to move the replacement object down
         yield return StartCoroutine(MoveDown(newObject, originalPosition, oldObject));
 
+        TennisBallScript tennisBallScript = newObject.GetComponent<TennisBallScript>();
+        if (tennisBallScript != null) {
+            tennisBallScript.OnLanded();
+        }
+        
         // Start the coroutine to destroy the replacement object after 5 seconds
         yield return new WaitForSeconds(5f);
         Destroy(newObject);

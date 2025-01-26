@@ -18,6 +18,10 @@ namespace Main.Scripts
         private List<PlayerInput> _playerList;
         private List<GameObject> _aiCarObjList;
 
+        public WrapController GetWrapController() {
+            return _wrapController;
+        }
+
         private void Awake()
         {
             if (Instance != null && Instance != this) 

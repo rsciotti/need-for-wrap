@@ -1,11 +1,12 @@
 using UnityEngine;
+using Main.Scripts;
 
-public class CollisionDetector : MonoBehaviour
+public class TennisBallScript : MonoBehaviour
 {
     // This function is called when the collider attached to this GameObject collides with another collider
     void OnCollisionEnter2D(Collision2D collision)
     {
-        //Debug.Log("collision!!");
+        Debug.Log("collision!!");
 
         //Debug.Log(collision.gameObject.name);
         // Check if the object's name starts with 'P'
@@ -21,5 +22,10 @@ public class CollisionDetector : MonoBehaviour
 
             // Destroy the colliding object (optional, based on your needs)
             //Destroy(collision.gameObject);
+    }
+
+    public void OnLanded() {
+        var bounds = GetComponent<Collider2D>().bounds;
+        GameManager.Instance.GetWrapController().PopWithinBounds(bounds.min, bounds.max);
     }
 }
