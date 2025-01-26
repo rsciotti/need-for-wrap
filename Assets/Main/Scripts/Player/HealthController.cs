@@ -60,6 +60,9 @@ public class HealthController : MonoBehaviour
     private void UpdateHealth(int newHealth) {
         health = newHealth;
         float newXScale = ((float) newHealth / maxHealth) * healthBarBackground.transform.localScale.x;
+        if (newXScale < 0f) {
+            newXScale = 0f;
+        }
         healthBarForeground.transform.localScale = new Vector3(newXScale, healthBarBackground.transform.localScale.y, 1f);
         healthChangeEvent.Invoke(health);
         StartCoroutine(ShowHealthBarTemporarily());
