@@ -52,6 +52,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: AI
       objectReference: {fileID: 0}
+    - target: {fileID: 8452037998416773489, guid: 7437b692ec9b65741b4e9a9f3dcdcf75, type: 3}
+      propertyPath: m_TagString
+      value: AI
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1256743094121688812, guid: 7437b692ec9b65741b4e9a9f3dcdcf75, type: 3}
     - {fileID: 7539742049750787924, guid: 7437b692ec9b65741b4e9a9f3dcdcf75, type: 3}
@@ -83,3 +87,8 @@ MonoBehaviour:
   acceleration: 7
   steering: 5
   drift: 0.75
+  rayDistance: 1
+  collisionLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  frontCollisionDamage: 1

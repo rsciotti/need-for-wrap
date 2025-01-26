@@ -56,6 +56,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MotorcycleAI
       objectReference: {fileID: 0}
+    - target: {fileID: 5264987754764768431, guid: b5108c32e683b43edae77c05eee28281, type: 3}
+      propertyPath: m_TagString
+      value: AI
+      objectReference: {fileID: 0}
     - target: {fileID: 6526679435168921017, guid: b5108c32e683b43edae77c05eee28281, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.004
@@ -71,6 +75,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 7974889992700748605, guid: b5108c32e683b43edae77c05eee28281, type: 3}
+    - {fileID: 8932316712012691182, guid: b5108c32e683b43edae77c05eee28281, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5108c32e683b43edae77c05eee28281, type: 3}
