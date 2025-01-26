@@ -20,6 +20,7 @@ namespace Main.Scripts
         [SerializeField] private WrapController _wrapController;
         [SerializeField] private GameObject _aiCarControllerGameObj;
         [SerializeField] private BubblesPoppedCounterScript _popCounter;
+        [SerializeField] private int _deathPenalty = 25;
 
         private PlayerInputManager _playerInputManager;
 
@@ -82,6 +83,7 @@ namespace Main.Scripts
         private void OnPlayerHealthChange(int health, int index) {
             if (health == 0) {
                 _wrapController.PopWithinRadius(_playerList[index].transform.position, 3f);
+                _popCounter.decrementPopped(index, _deathPenalty);
             }
         }
 

@@ -17,6 +17,15 @@ public class BubblesPoppedCounterScript : MonoBehaviour
         BubblesPoppedText[playerNum].text = bubblesPopped[playerNum].ToString();
     }
 
+    public void decrementPopped(int playerNum, int amount) {
+        if (playerNum < 0 || playerNum >= bubblesPopped.Length) {
+            return;
+        }
+
+        bubblesPopped[playerNum] -= amount;
+        BubblesPoppedText[playerNum].text = bubblesPopped[playerNum].ToString();
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {       
