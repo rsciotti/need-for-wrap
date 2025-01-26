@@ -18,7 +18,7 @@ public class WrapController : MonoBehaviour
     void Start()
     {
         _tileMap = transform.Find("Tilemap").gameObject.GetComponent<Tilemap>();
-        InitializeGrid();
+        // _tileMap.color = new Color(255, 255, 255, .9f);
     }
 
     private void InitializeGrid()
