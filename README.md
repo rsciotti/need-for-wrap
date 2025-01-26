@@ -1,2 +1,1 @@
-# need-for-wrap
-Bubble racer
+You need to start moving for players to spawn. Supports local multiplayer up to 6 players by device.
