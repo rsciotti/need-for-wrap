@@ -98,6 +98,11 @@ namespace Main.Scripts
 
         private void Update()
         {
+
+            if (Input.GetKey(KeyCode.Escape))
+            {
+                Application.Quit();
+            }
             
             timer += Time.deltaTime;
             
