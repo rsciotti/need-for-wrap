@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_NotificationBehavior: 0
-  m_MaxPlayerCount: -1
+  m_MaxPlayerCount: 6
   m_AllowJoining: 1
   m_JoinBehavior: 0
   m_PlayerJoinedEvent:
@@ -89,3 +89,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55671bb6d45b91a4fa060594a99831fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _wrapController: {fileID: 0}
+  _aiCarControllerGameObj: {fileID: 0}
+  _popCounter: {fileID: 0}
+  _availableCarSprites:
+  - {fileID: 4232929766492615983, guid: ac938d4d2047b344c9f20a995fd4d4a9, type: 3}
+  - {fileID: -7852336811773026942, guid: e2e665db3a8df654fb5b52d9e51b3ff8, type: 3}
+  - {fileID: 1637875537208002065, guid: 1d844acac9be5dc4e80faccc20580680, type: 3}
+  - {fileID: -1227862987690522724, guid: df7c4c7a9c61ba341833646f44eaadf7, type: 3}
+  - {fileID: 2550226583136457656, guid: eb5224330b43d994d81ee35562de62fd, type: 3}
+  - {fileID: 2527217099589609963, guid: fd9bb5d22d1b77f4dbfcda55d00f43d1, type: 3}

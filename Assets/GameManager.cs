@@ -15,6 +15,7 @@ namespace Main.Scripts
 
         private PlayerInputManager _playerInputManager;
 
+        public List<Sprite> _availableCarSprites;
         private List<PlayerInput> _playerList;
         private List<GameObject> _aiCarObjList;
 
@@ -42,7 +43,11 @@ namespace Main.Scripts
         // Called when a player joins
         private void OnPlayerJoined(PlayerInput playerInput)
         {
+            SpriteRenderer spriteRenderer = playerInput.gameObject.GetComponent<SpriteRenderer>();
+            spriteRenderer.sprite = _availableCarSprites[playerInput.playerIndex];
             _playerList.Add(playerInput);
+            _playerInputManager.onPlayerJoined += OnPlayerJoined;
+            _playerInputManager.onPlayerLeft += OnPlayerLeft;
             _aiCarObjList.Add(Instantiate(_aiCarControllerGameObj, new Vector3(0, 0, 0), Quaternion.identity));
         }
         
