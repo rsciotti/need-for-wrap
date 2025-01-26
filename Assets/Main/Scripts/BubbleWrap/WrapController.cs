@@ -2,6 +2,7 @@ using Main.Scripts;
 using Ricky.Scripts;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using System.Collections.Generic;
 
 public class WrapController : MonoBehaviour
 {
@@ -61,5 +62,39 @@ public class WrapController : MonoBehaviour
         }
 
         return poppedBubbles;
+    }
+
+    public int PopWithinRadius(Vector2 center, float radius) {
+        int poppedBubbles = 0;
+
+        // Higher scale will leave some bubbles unpopped (0.5f to pop all bubbles)
+        IEnumerable<Vector2> pointsInCircle = PointsInCircle(center, radius, 0.5f);
+        foreach (Vector2 point in pointsInCircle) {
+            if (PopAtLocation(point)) {
+                poppedBubbles++;
+            }
+        }
+
+        return poppedBubbles;
+    }
+
+    private bool InCircle(Vector2 point, Vector2 circlePoint, float radius) {
+        return (point - circlePoint).sqrMagnitude <= radius * radius;
+    }
+
+    private IEnumerable<Vector2> PointsInCircle(Vector2 circlePos, float radius, float scale) {
+        var minX = circlePos.x - radius;
+        var maxX = circlePos.x + radius;
+    
+        var minY = circlePos.y - radius;
+        var maxY = circlePos.y + radius;
+
+        for (var y = minY; y <= maxY; y += scale) {
+            for (var x = minX; x <= maxX; x += scale) {
+                if (InCircle(new Vector2(x, y), circlePos, radius)) {
+                    yield return new Vector2(x, y);
+                }
+            }
+        }
     }
 }

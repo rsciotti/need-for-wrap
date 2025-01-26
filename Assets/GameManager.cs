@@ -59,11 +59,28 @@ namespace Main.Scripts
             _playerInputManager.onPlayerJoined += OnPlayerJoined;
             _playerInputManager.onPlayerLeft += OnPlayerLeft;
             _aiCarObjList.Add(Instantiate(_aiCarControllerGameObj, new Vector3(0, 0, 0), Quaternion.identity));
+
+            ListenToPlayerHealthChange(playerInput);
         }
         
         private void OnPlayerLeft(PlayerInput playerInput)
         {
             Debug.Log($"Player {playerInput.playerIndex} has left the game.");
+        }
+
+        private void ListenToPlayerHealthChange(PlayerInput playerInput) {
+            if (_playerList.Count > 0) {
+               HealthController healthController = _playerList[^1].GetComponent<HealthController>();
+               if (healthController != null) {
+                    healthController.healthChangeEvent.AddListener((health) => { OnPlayerHealthChange(health, _playerList.Count - 1); });
+               }
+            }
+        }
+
+        private void OnPlayerHealthChange(int health, int index) {
+            if (health == 0) {
+                _wrapController.PopWithinRadius(_playerList[index].transform.position, 6f);
+            }
         }
 
         private void OnDestroy()
