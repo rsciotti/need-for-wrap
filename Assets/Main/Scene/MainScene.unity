@@ -596,7 +596,7 @@ PrefabInstance:
     - target: {fileID: -3920060030423408490, guid: 03aaaabbf69cbe146b92c88d5fa99d0c, type: 3}
       propertyPath: _aiCarControllerGameObj
       value: 
-      objectReference: {fileID: 5264987754764768431, guid: b5108c32e683b43edae77c05eee28281, type: 3}
+      objectReference: {fileID: 4019683480976495391, guid: 2bff4a53bffa8422cb3a948a34742e1b, type: 3}
     - target: {fileID: 3869752687728257340, guid: 03aaaabbf69cbe146b92c88d5fa99d0c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 6.9692974
