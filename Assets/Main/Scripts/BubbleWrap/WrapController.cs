@@ -14,6 +14,12 @@ public class WrapController : MonoBehaviour
     [SerializeField] private AudioClip[] poppingSounds;
 
     public Transform player;
+    public Transform player2;
+    public Transform player3;
+    public Transform player4;
+    public Transform player5;
+    public Transform player6;
+    
 
     public BubblesPoppedCounterScript popCounter;
 
@@ -39,6 +45,11 @@ public class WrapController : MonoBehaviour
     void Update()
     {
         PopAtLocation(player.position);
+        PopAtLocation(player2.position);
+        PopAtLocation(player3.position);
+        PopAtLocation(player4.position);
+        PopAtLocation(player5.position);
+        PopAtLocation(player6.position);
     }
 
     public void PopAtLocation(Vector2 location)
