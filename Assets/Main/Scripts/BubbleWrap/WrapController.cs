@@ -13,34 +13,11 @@ public class WrapController : MonoBehaviour
 
     [SerializeField] private AudioClip[] poppingSounds;
 
-    public Transform player;
-
-    public BubblesPoppedCounterScript popCounter;
-
     void Start()
     {
         _tileMap = transform.Find("Tilemap").gameObject.GetComponent<Tilemap>();
-        popCounter = GameObject.FindGameObjectWithTag("BubblesPoppedLogic").GetComponent<BubblesPoppedCounterScript>();
     }
-
-    private void InitializeGrid()
-    {
-        
-        for (int x = -30; x < 30; x++)
-        {
-            for (int y = -20; y < 20; y++)
-            {
-                _tileMap.SetTile(new Vector3Int(x,y,0), unpoppedTile);
-            }
-        }
-        
-    }
-
-    void Update()
-    {
-        // PopAtLocation(player.position);
-    }
-
+    
     public void PopAtLocation(Vector2 location)
     {
         Vector3Int cell = _tileMap.WorldToCell(location);
