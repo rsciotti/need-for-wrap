@@ -14,6 +14,9 @@ namespace Main.Scripts
         public GameObject winPanel;
         public TextMeshProUGUI winText;
 
+        private string[] playerColors = {"Green", "Orange", "Pink", "Purple", "Red", "Yellow"};
+        private string color = "";
+
         [SerializeField] private WrapController _wrapController;
         [SerializeField] private GameObject _aiCarControllerGameObj;
         [SerializeField] private BubblesPoppedCounterScript _popCounter;
@@ -51,6 +54,7 @@ namespace Main.Scripts
         {
             SpriteRenderer spriteRenderer = playerInput.gameObject.GetComponent<SpriteRenderer>();
             spriteRenderer.sprite = _availableCarSprites[playerInput.playerIndex];
+            color = playerColors[playerInput.playerIndex];
             _playerList.Add(playerInput);
             _playerInputManager.onPlayerJoined += OnPlayerJoined;
             _playerInputManager.onPlayerLeft += OnPlayerLeft;
@@ -81,7 +85,7 @@ namespace Main.Scripts
                     if(_popCounter.bubblesPopped[player.playerIndex] >= winningScore)
                     {
                         winPanel.SetActive(true);
-                        string text = "Player " + player.playerIndex + " wins!\n Popped " + winningScore + " bubbles!";
+                        string text = "Player " + color + " wins!\n Popped " + winningScore + " bubbles!";
                         winText.text = text;
                     }
                 }
