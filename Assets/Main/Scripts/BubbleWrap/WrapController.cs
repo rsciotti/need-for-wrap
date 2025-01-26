@@ -38,7 +38,7 @@ public class WrapController : MonoBehaviour
 
     void Update()
     {
-        PopAtLocation(player.position);
+        // PopAtLocation(player.position);
     }
 
     public void PopAtLocation(Vector2 location)
@@ -51,6 +51,7 @@ public class WrapController : MonoBehaviour
         }
         _tileMap.SetTile(cell, poppedTile);
         SoundManager.Instance.PlaySoundEffect(poppingSounds[Random.Range(0, 100) % poppingSounds.Length]);
+        /*
         if (player.gameObject.name == "Player (1)")
             popCounter.incrementPopped(0);
         if (player.gameObject.name == "Player (2)")
@@ -63,6 +64,7 @@ public class WrapController : MonoBehaviour
             popCounter.incrementPopped(4);
         if (player.gameObject.name == "Player (6)")
             popCounter.incrementPopped(5);
+        */
     }
 
     /// <summary>
