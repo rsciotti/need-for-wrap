@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.Events;
+using UnityEngine.InputSystem;
 
 public class PlayerController : BaseVehicle
 {
@@ -7,12 +7,12 @@ public class PlayerController : BaseVehicle
     float y = 1;
 
     // Update is called once per frame
-    protected override void Update()
-    {
-        base.Update();
 
-        x = Input.GetAxis("Horizontal");
-        y = Input.GetAxis("Vertical");
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        Vector2 input = context.ReadValue<Vector2>();
+        x = input.x;
+        y = input.y;
     }
 
     protected override void FixedUpdate()
