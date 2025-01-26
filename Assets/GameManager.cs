@@ -87,6 +87,7 @@ namespace Main.Scripts
                         winPanel.SetActive(true);
                         string text = "Player " + color + " wins!\n Popped " + winningScore + " bubbles!";
                         winText.text = text;
+                        Time.timeScale = 0f; // Pause the game
                     }
                 }
             }
