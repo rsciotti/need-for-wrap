@@ -1,3 +1,4 @@
+using Unity.Mathematics.Geometry;
 using UnityEngine;
 
 /// <summary>
@@ -15,8 +16,8 @@ public abstract class BaseVehicle : MonoBehaviour
     public LayerMask collisionLayer;
     public int frontCollisionDamage = 1;
 
-    private Rigidbody2D rb;
-    private Collider2D collider2D;
+    protected Rigidbody2D rb;
+    protected Collider2D collider2D;
     private float topAngle;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -28,12 +29,6 @@ public abstract class BaseVehicle : MonoBehaviour
         Vector2 size = GetComponent<BoxCollider2D>().size;
         size = Vector2.Scale (size, (Vector2)transform.localScale);
         topAngle = Mathf.Atan(size.x / size.y) * Mathf.Rad2Deg;
-    }
-
-    // Update is called once per frame
-    protected virtual void Update()
-    {
-    
     }
 
     protected abstract void FixedUpdate();
@@ -76,18 +71,9 @@ public abstract class BaseVehicle : MonoBehaviour
         Vector2 speed = transform.up * (y * acceleration);
         rb.AddForce(speed);
 
-        float direction = Vector2.Dot(rb.linearVelocity, rb.GetRelativeVector(Vector2.up));
-
         if(acceleration > 0)
-        {
-            if(direction > 0)
-            {
-                rb.rotation -= x * steering * (rb.linearVelocity.magnitude / MaxSpeed);
-            }
-            else
-            {
-                rb.rotation += x * steering * (rb.linearVelocity.magnitude / MaxSpeed);
-            }
+        { 
+            rb.rotation -= x * steering * Mathf.Clamp((rb.linearVelocity.magnitude / MaxSpeed), .5f, 1f);
         }
 
         float driftForce = Vector2.Dot(rb.linearVelocity, rb.GetRelativeVector(Vector2.left)) * drift;
@@ -98,7 +84,7 @@ public abstract class BaseVehicle : MonoBehaviour
 
         if(rb.linearVelocity.magnitude > MaxSpeed)
         {
-            rb.linearVelocity = rb. linearVelocity.normalized * MaxSpeed;
+            rb.linearVelocity = rb.linearVelocity.normalized * MaxSpeed;
         }
     }
 }

@@ -19,10 +19,7 @@ public class PlayerController : BaseVehicle
     {
         if (Input.GetJoystickNames().Length > 0 && x != 0 || y != 0)
         {
-            // Handle your controller-specific logic here
-            // Move the object based on controller input
             Move(x, y);
-        //Debug.DrawLine(rb.position, rb.GetRelativePoint(relativeForce), Color.green, 2, false);
         }
     }
 }
