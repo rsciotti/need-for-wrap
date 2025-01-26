@@ -1,15 +1,9 @@
 using UnityEngine;
 
-public class AICarController : PlayerController
+public class AICarController : BaseVehicle
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        base.Start();
-    }
-
     // Update is called once per frame
-    void FixedUpdate()
+    protected override void FixedUpdate()
     {
         Move(1, 1);
     }
