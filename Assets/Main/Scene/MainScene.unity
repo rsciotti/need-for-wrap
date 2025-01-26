@@ -447,6 +447,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 757c12c28ad89be41a789e1165d9b56a, type: 3}
+--- !u!114 &1970809697 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7203821361582247054, guid: 1bed6061d335e6140afdd0bbdb0bf1bc, type: 3}
+  m_PrefabInstance: {fileID: 387632685}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c19e3eb9c4b38c14093762c76d441c0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &875742612642636492
 GameObject:
   m_ObjectHideFlags: 0
@@ -592,7 +603,7 @@ PrefabInstance:
     - target: {fileID: -3920060030423408490, guid: 03aaaabbf69cbe146b92c88d5fa99d0c, type: 3}
       propertyPath: _popCounter
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1970809697}
     - target: {fileID: -3920060030423408490, guid: 03aaaabbf69cbe146b92c88d5fa99d0c, type: 3}
       propertyPath: _wrapController
       value: 
