@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class ObjectSpawner : MonoBehaviour
 {
-    public GameObject objectToSpawn; // The prefab you want to spawn
-    public GameObject replacementObject; // The prefab to replace the spawned object
+    public GameObject shadowObject; // The prefab you want to spawn
+    public GameObject fallingObject; // The prefab to replace the spawned object
 
     public float waitTime = 5f;
 
@@ -33,40 +33,50 @@ public class ObjectSpawner : MonoBehaviour
             Vector3 spawnPosition = new Vector3(randomX, randomY, randomZ);
 
             // Spawn the object
-            GameObject spawnedObject = Instantiate(objectToSpawn, spawnPosition, Quaternion.identity);
+            GameObject shadowObjectInstance = Instantiate(shadowObject, spawnPosition, Quaternion.identity);
 
             // Wait for 3 seconds before replacing the object
             yield return new WaitForSeconds(3f);
 
             // Replace the spawned object with the replacement object
-            StartCoroutine(ReplaceObject(spawnedObject));
+            StartCoroutine(SpawnObjectFromShadow(shadowObjectInstance));
         }
     }
 
-    private IEnumerator ReplaceObject(GameObject oldObject)
+    private IEnumerator SpawnObjectFromShadow(GameObject shadowObjectInstance)
     {
         // Get the position and rotation of the old object
-        Vector3 originalPosition = oldObject.transform.position;
-        Quaternion rotation = oldObject.transform.rotation;
+        Vector3 shadowPosition = shadowObjectInstance.transform.position;
+        Quaternion rotation = shadowObjectInstance.transform.rotation;
 
         // Instantiate the replacement object 20 units above the original position
-        Vector3 replacementPosition = originalPosition + new Vector3(0, 20f, 0);
-        GameObject newObject = Instantiate(replacementObject, replacementPosition, rotation);
+        Vector3 fallingObjectPosition = shadowPosition + new Vector3(0, 20f, 0);
+        GameObject fallingObjectInstance = Instantiate(fallingObject, fallingObjectPosition, rotation);
 
         // Start the coroutine to move the replacement object down
-        yield return StartCoroutine(MoveDown(newObject, originalPosition, oldObject));
+        yield return StartCoroutine(MoveDown(fallingObjectInstance, shadowPosition, shadowObjectInstance));
 
-        TennisBallScript tennisBallScript = newObject.GetComponent<TennisBallScript>();
+        // Check if falling object has OnLanded to do
+        TennisBallScript tennisBallScript = fallingObjectInstance.GetComponent<TennisBallScript>();
         if (tennisBallScript != null) {
             tennisBallScript.OnLanded();
         }
         
+        // Enable Circle 2d collider
+        CircleCollider2D circleCollider2D = fallingObjectInstance.GetComponent<CircleCollider2D>();
+        circleCollider2D.enabled = true;
+        
+        if (!shadowObjectInstance)
+        {
+            yield return null;
+        }
+        
         // Start the coroutine to destroy the replacement object after 5 seconds
         yield return new WaitForSeconds(5f);
-        Destroy(newObject);
+        Destroy(fallingObjectInstance);
     }
 
-    private IEnumerator MoveDown(GameObject obj, Vector3 targetPosition, GameObject oldObject)
+    private IEnumerator MoveDown(GameObject fallingObjectInstance, Vector3 targetPosition, GameObject shadowObjectInstance)
     {
         float speed = 20f; // Speed at which the object will move down
         float moveDuration = 20f / speed; // Time it will take to move down
@@ -74,15 +84,13 @@ public class ObjectSpawner : MonoBehaviour
 
         // Wait for the specified time before destroying the old object
         yield return new WaitForSeconds(timeToWaitBeforeDestroying);
-        if(oldObject != null)
-        {
-            Destroy(oldObject);
-        }
         
+        Destroy(shadowObjectInstance);
+
         // Continue moving down to the target position
-        while (obj != null && obj.transform.position.y > targetPosition.y)
+        while (fallingObjectInstance.transform.position.y > targetPosition.y)
         {
-            obj.transform.position = Vector3.MoveTowards(obj.transform.position, targetPosition, speed * Time.deltaTime);
+            fallingObjectInstance.transform.position = Vector3.MoveTowards(fallingObjectInstance.transform.position, targetPosition, speed * Time.deltaTime);
             yield return null;
         }
     }
