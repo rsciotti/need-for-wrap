@@ -44,8 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7f12bf2d39e2f44cb2b1775eb2f452f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectToSpawn: {fileID: 7005226000811878648, guid: 38b2f8dbb2956b949935341a5b1c77b0, type: 3}
-  replacementObject: {fileID: 5096073930196784769, guid: b0d9786b58528ed45ac9464c73543a5e, type: 3}
+  shadowObject: {fileID: 7005226000811878648, guid: 38b2f8dbb2956b949935341a5b1c77b0, type: 3}
+  fallingObject: {fileID: 5096073930196784769, guid: b0d9786b58528ed45ac9464c73543a5e, type: 3}
   waitTime: 12
   minX: -45
   maxX: 33.8
