@@ -16,6 +16,7 @@ public class HealthPickup : MonoBehaviour
         {
             //Debug.Log("healthController not null!");
             healthController.Heal(5);
+            Destroy(gameObject);
         }
 
     }

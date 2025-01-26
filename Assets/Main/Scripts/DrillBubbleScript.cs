@@ -16,6 +16,7 @@ public class DrillBubbleScript : MonoBehaviour
         {
             //Debug.Log("healthController not null!");
             healthController.Heal(1);
+            Destroy(gameObject);
         }
 
             // Destroy the colliding object (optional, based on your needs)
