@@ -6,6 +6,8 @@ public class ObjectSpawner : MonoBehaviour
     public GameObject objectToSpawn; // The prefab you want to spawn
     public GameObject replacementObject; // The prefab to replace the spawned object
 
+    public float waitTime = 5f;
+
     // Define your spawn zone boundaries
     public float minX, maxX;
     public float minY, maxY;
@@ -22,7 +24,7 @@ public class ObjectSpawner : MonoBehaviour
         while (true)
         {
             // Wait for 5 seconds
-            yield return new WaitForSeconds(5f);
+            yield return new WaitForSeconds(waitTime);
 
             // Generate a random position within the zone
             float randomX = Random.Range(minX, maxX);

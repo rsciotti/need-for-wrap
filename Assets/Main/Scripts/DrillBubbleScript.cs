@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CollisionDetector : MonoBehaviour
+public class DrillBubbleScript : MonoBehaviour
 {
     // This function is called when the collider attached to this GameObject collides with another collider
     void OnCollisionEnter2D(Collision2D collision)
@@ -14,9 +14,8 @@ public class CollisionDetector : MonoBehaviour
         HealthController healthController = collision.gameObject.GetComponent<HealthController>();
         if (healthController != null)
         {
-                //Debug.Log("healthController not null!");
-                // Call the Damage function and pass in the integer value of 5
-            healthController.Damage(5);
+            //Debug.Log("healthController not null!");
+            healthController.Heal(1);
         }
 
             // Destroy the colliding object (optional, based on your needs)
