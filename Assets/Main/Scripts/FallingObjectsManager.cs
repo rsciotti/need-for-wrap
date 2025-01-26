@@ -69,10 +69,13 @@ public class ObjectSpawner : MonoBehaviour
 
         // Wait for the specified time before destroying the old object
         yield return new WaitForSeconds(timeToWaitBeforeDestroying);
-        Destroy(oldObject);
-
+        if(oldObject != null)
+        {
+            Destroy(oldObject);
+        }
+        
         // Continue moving down to the target position
-        while (obj.transform.position.y > targetPosition.y)
+        while (obj != null && obj.transform.position.y > targetPosition.y)
         {
             obj.transform.position = Vector3.MoveTowards(obj.transform.position, targetPosition, speed * Time.deltaTime);
             yield return null;
