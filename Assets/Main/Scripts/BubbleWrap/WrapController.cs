@@ -18,30 +18,25 @@ public class WrapController : MonoBehaviour
         _tileMap = transform.Find("Tilemap").gameObject.GetComponent<Tilemap>();
     }
     
-    public void PopAtLocation(Vector2 location)
+    
+    /// <summary>
+    /// Pops bubble at location.  Returns true if it was just popped; false if it was already popped.
+    /// </summary>
+    /// <param name="topLeft"></param>
+    /// <param name="bottomRight"></param>
+    /// <returns>Number of popped bubbles</returns>
+    public bool PopAtLocation(Vector2 location)
     {
         Vector3Int cell = _tileMap.WorldToCell(location);
         BubbleTile oldTile = _tileMap.GetTile<BubbleTile>(cell);
         if (!oldTile || oldTile.popped)
         {
-            return;
+            return false;
         }
         _tileMap.SetTile(cell, poppedTile);
         SoundManager.Instance.PlaySoundEffect(poppingSounds[Random.Range(0, 100) % poppingSounds.Length]);
-        /*
-        if (player.gameObject.name == "Player (1)")
-            popCounter.incrementPopped(0);
-        if (player.gameObject.name == "Player (2)")
-            popCounter.incrementPopped(1);
-        if (player.gameObject.name == "Player (3)")
-            popCounter.incrementPopped(2);
-        if (player.gameObject.name == "Player (4)")
-            popCounter.incrementPopped(3);
-        if (player.gameObject.name == "Player (5)")
-            popCounter.incrementPopped(4);
-        if (player.gameObject.name == "Player (6)")
-            popCounter.incrementPopped(5);
-        */
+        
+        return true;
     }
 
     /// <summary>

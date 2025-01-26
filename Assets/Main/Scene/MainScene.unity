@@ -225,6 +225,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &745518687 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3889804764975922747, guid: ca756be40c26efd4abed084138a41a1a, type: 3}
+  m_PrefabInstance: {fileID: 3479497058460713100}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c19e3eb9c4b38c14093762c76d441c0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &938924735 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8758848300489048440, guid: 757c12c28ad89be41a789e1165d9b56a, type: 3}
@@ -589,6 +600,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -3920060030423408490, guid: 03aaaabbf69cbe146b92c88d5fa99d0c, type: 3}
+      propertyPath: _popCounter
+      value: 
+      objectReference: {fileID: 745518687}
     - target: {fileID: -3920060030423408490, guid: 03aaaabbf69cbe146b92c88d5fa99d0c, type: 3}
       propertyPath: _wrapController
       value: 

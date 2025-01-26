@@ -11,6 +11,7 @@ namespace Main.Scripts
 
         [SerializeField] private WrapController _wrapController;
         [SerializeField] private GameObject _aiCarControllerGameObj;
+        [SerializeField] private BubblesPoppedCounterScript _popCounter;
 
         private PlayerInputManager _playerInputManager;
 
@@ -59,7 +60,9 @@ namespace Main.Scripts
         {
             foreach (PlayerInput player in _playerList)
             {
-                _wrapController.PopAtLocation(player.transform.position);
+                if (_wrapController.PopAtLocation(player.transform.position)) {
+                    _popCounter.incrementPopped(player.playerIndex);
+                }
             }
 
             foreach (GameObject aiCar in _aiCarObjList) {
