@@ -1,16 +1,28 @@
 using UnityEngine;
 
-public class TennisBallScript : MonoBehaviour
+public class CollisionDetector : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    // This function is called when the collider attached to this GameObject collides with another collider
+    void OnCollisionEnter2D(Collision2D collision)
     {
-        
-    }
+        //Debug.Log("collision!!");
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        //Debug.Log(collision.gameObject.name);
+        // Check if the object's name starts with 'P'
+        if (collision.gameObject.name.StartsWith("P"))
+        {
+            //Debug.Log("Starts with P!");
+            // Get the HealthController component from the colliding object
+            HealthController healthController = collision.gameObject.GetComponent<HealthController>();
+            if (healthController != null)
+            {
+                //Debug.Log("healthController not null!");
+                // Call the Damage function and pass in the integer value of 5
+                healthController.Damage(5);
+            }
+
+            // Destroy the colliding object (optional, based on your needs)
+            //Destroy(collision.gameObject);
+        }
     }
 }

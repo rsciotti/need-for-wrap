@@ -45,6 +45,7 @@ public class HealthController : MonoBehaviour
     }
 
     public void Damage(int amount) {
+        Debug.Log("Damage called!");
         UpdateHealth(health - amount);
     }
 
