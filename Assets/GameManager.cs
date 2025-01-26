@@ -82,7 +82,8 @@ namespace Main.Scripts
                 if (_wrapController.PopAtLocation(player.transform.position)) {
                     _popCounter.incrementPopped(player.playerIndex);
 
-                    if(_popCounter.bubblesPopped[player.playerIndex] >= winningScore)
+
+                    if(player.playerIndex >= 0 && player.playerIndex < _popCounter.bubblesPopped.Length && _popCounter.bubblesPopped[player.playerIndex] >= winningScore)
                     {
                         winPanel.SetActive(true);
                         string text = "Player " + color + " wins!\n Popped " + winningScore + " bubbles!";
