@@ -60,6 +60,18 @@ PrefabInstance:
       propertyPath: m_TagString
       value: AI
       objectReference: {fileID: 0}
+    - target: {fileID: 6283148618248961461, guid: b5108c32e683b43edae77c05eee28281, type: 3}
+      propertyPath: targetSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 765372228b511c340bd929f9f806ab2c, type: 3}
+    - target: {fileID: 6283148618248961461, guid: b5108c32e683b43edae77c05eee28281, type: 3}
+      propertyPath: outlineSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 15a1d138956ddc34c93aac0d6aaf20d2, type: 3}
+    - target: {fileID: 6283148618248961461, guid: b5108c32e683b43edae77c05eee28281, type: 3}
+      propertyPath: motorcycleOutlineSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 15a1d138956ddc34c93aac0d6aaf20d2, type: 3}
     - target: {fileID: 6526679435168921017, guid: b5108c32e683b43edae77c05eee28281, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.004

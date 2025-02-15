@@ -133,6 +133,40 @@ namespace Main.Scripts
             foreach (GameObject aiCar in _aiCarObjList) {
                 _wrapController.PopAtLocation(aiCar.transform.position);
             }
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                //Debug.Log("Screen clicked at: " + Input.mousePosition);
+                //Debug.Log("ScreenToWorld: " + Camera.main.ScreenToWorldPoint(Input.mousePosition));
+                //Debug.Log("ScreenToView:" + Camera.main.ScreenToViewportPoint(Input.mousePosition));
+                foreach (GameObject aiCar in _aiCarObjList)
+                {
+                    //Debug.Log("AI at: " + aiCar.transform.position);
+                    if (Vector2.Distance((Vector2)aiCar.transform.position,
+                                         (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition)) <= 2.5f)
+                    {
+                        //Debug.Log("Clicked on AI at: " + aiCar.transform.position);
+                        aiCar.GetComponent<AICarController>().selectOn();
+                    }
+                }
+            }
+
+            if (Input.GetMouseButtonDown(1))
+            {
+                //Debug.Log("Screen right-clicked at: " + Input.mousePosition);
+                //Debug.Log("ScreenToWorld: " + Camera.main.ScreenToWorldPoint(Input.mousePosition));
+                //Debug.Log("ScreenToView:" + Camera.main.ScreenToViewportPoint(Input.mousePosition));
+                foreach (GameObject aiCar in _aiCarObjList)
+                {
+                    //Debug.Log("AI at: " + aiCar.transform.position);
+                    if (Vector2.Distance((Vector2)aiCar.transform.position,
+                                         (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition)) <= 2.5f)
+                    {
+                        //Debug.Log("Right-clicked on AI at: " + aiCar.transform.position);
+                        aiCar.GetComponent<AICarController>().selectOff();
+                    }
+                }
+            }
         }
     }
 }
