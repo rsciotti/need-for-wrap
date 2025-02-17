@@ -85,7 +85,7 @@ public class AICarController : BaseVehicle
                 break;
             case State.Idle:
             default:
-                Move(.7f, 1);
+                Move(0.7f, 1f);
                 break;
         }
 
@@ -97,15 +97,98 @@ public class AICarController : BaseVehicle
 
     private void MoveTowards(Vector2 target)
     {
-        Vector2 direction = (target - (Vector2)transform.position).normalized;
-        float angleRad = Mathf.Clamp(Mathf.Atan2(direction.y, direction.x), -1, 1);
-        Move(angleRad, 1);
+        Vector2 targetDir = (target - (Vector2)transform.position);
+        float targetDistance = targetDir.magnitude;
+        float targetLocalAng = Mathf.Atan2(targetDir.y, targetDir.x) - ((transform.rotation.z + 90f) % 180f) * Mathf.Deg2Rad;
+        Vector2 predictDir = (Vector2)(futureObj.transform.position - transform.position);
+        float predictDistance = predictDir.magnitude;
+        float predictLocalAng = Mathf.Atan2(predictDir.y, predictDir.x) - ((transform.rotation.z + 90f) % 180f) * Mathf.Deg2Rad;
+        float moveX = 0.7f;
+        float moveY = 1f;
+        if (Mathf.Abs(targetLocalAng - predictLocalAng) > Mathf.PI / 36f)
+        {
+            if (targetLocalAng >= 0f && targetLocalAng < Mathf.PI / 2f)
+            {
+                moveX = Mathf.Clamp(Mathf.Sin(targetLocalAng) * -2f, -0.75f, -0.5f);
+                moveY = Mathf.Clamp(Mathf.Sin(Mathf.Abs(predictLocalAng - targetLocalAng) / 2f) * 2f, 0.5f, 1f);
+            }
+            else if (targetLocalAng > Mathf.PI / -2f)
+            {
+                moveX = Mathf.Clamp(Mathf.Sin(targetLocalAng) * -2f, 0.5f, 0.75f);
+                moveY = Mathf.Clamp(Mathf.Sin(Mathf.Abs(predictLocalAng - targetLocalAng) / 2f) * 2f, 0.5f, 1f);
+            }
+            else if (targetLocalAng > 0f)
+            {
+                if (_currentState == State.Attacking)
+                {
+                    moveX = Mathf.Clamp(Mathf.Sin(Mathf.PI - targetLocalAng) * -2f, -0.75f, -0.5f);
+                    moveY = 0.5f;
+                }
+                else
+                {
+                    moveX = Mathf.Clamp(Mathf.Sin(Mathf.PI - targetLocalAng) * -2f, -0.75f, -0.5f);
+                    moveY = Mathf.Clamp(Mathf.Sin(Mathf.Abs(predictLocalAng - targetLocalAng) / 2f) * -2f, -1f, -0.5f);
+                }
+            }
+            else
+            {
+                if (_currentState == State.Attacking)
+                {
+                    moveX = Mathf.Clamp(Mathf.Sin(Mathf.PI + targetLocalAng) * 2f, 0.5f, 0.75f);
+                    moveY = 0.5f;
+                }
+                else
+                {
+                    moveX = Mathf.Clamp(Mathf.Sin(Mathf.PI + targetLocalAng) * 2f, 0.5f, 0.75f);
+                    moveY = Mathf.Clamp(Mathf.Sin(Mathf.Abs(predictLocalAng - targetLocalAng) / 2f) * -2f, -1f, -0.5f);
+                }
+            }
+        }
+        else if (targetDistance <= predictDistance)
+        {
+            moveX = 0f;
+            if (_currentState == State.Attacking) moveY = 1f;
+            else moveY = 0f;
+        }
+        else if (Mathf.Abs(targetLocalAng) <= Mathf.PI / 180f)
+        {
+            moveX = 0f;
+            moveY = 1f;
+        }
+        else if (Mathf.PI - Mathf.Abs(targetLocalAng) <= Mathf.PI / 180f)
+        {
+            if (_currentState == State.Attacking)
+            {
+                moveX = 1f;
+                moveY = 1f;
+            }
+            else
+            {
+                moveX = 0f;
+                moveY = -1f;
+            }
+        }
+        else
+        {
+            if (_currentState == State.Attacking)
+            {
+                moveX = Mathf.Sign(Mathf.Sign(targetLocalAng) + 0.5f) * -0.1f;
+                if (targetDistance >= 20f) moveY = -1f;
+                else moveY = 1f;
+            }
+            else
+            {
+                moveX = Mathf.Sign(Mathf.Sign(targetLocalAng) + 0.5f) * -0.5f;
+                moveY = Mathf.Sign(Mathf.Sign(targetLocalAng) + 0.5f) * 0.5f;
+            }
+        }
+        Move(moveX, moveY);
     }
 
 
     private GameObject[] GetNearbyObjects()
     {
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 10f);
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 25f);
         GameObject[] nearbyObjects = new GameObject[colliders.Length];
 
         int index = 0;
