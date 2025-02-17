@@ -21,5 +21,8 @@ public class PlayerController : BaseVehicle
         {
             Move(x, y);
         }
+
+        //Debug.Log("rot " + rb.rotation + " speed " + rb.linearVelocity +
+        //          " x " + transform.position.x + " y " + transform.position.y);
     }
 }

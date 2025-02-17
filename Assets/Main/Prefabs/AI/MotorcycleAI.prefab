@@ -69,6 +69,22 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 15a1d138956ddc34c93aac0d6aaf20d2, type: 3}
     - target: {fileID: 6283148618248961461, guid: b5108c32e683b43edae77c05eee28281, type: 3}
+      propertyPath: crosshairSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 765372228b511c340bd929f9f806ab2c, type: 3}
+    - target: {fileID: 6283148618248961461, guid: b5108c32e683b43edae77c05eee28281, type: 3}
+      propertyPath: crosshairSpriteRed
+      value: 
+      objectReference: {fileID: 21300000, guid: e636c0afaa32f9843ad496275b85d727, type: 3}
+    - target: {fileID: 6283148618248961461, guid: b5108c32e683b43edae77c05eee28281, type: 3}
+      propertyPath: crosshairSpriteBlue
+      value: 
+      objectReference: {fileID: 21300000, guid: 07061e8067cccdf44ab1e9dd23e24909, type: 3}
+    - target: {fileID: 6283148618248961461, guid: b5108c32e683b43edae77c05eee28281, type: 3}
+      propertyPath: crosshairSpriteGreen
+      value: 
+      objectReference: {fileID: 21300000, guid: 2e49b131033ca8d499e98d07f7887625, type: 3}
+    - target: {fileID: 6283148618248961461, guid: b5108c32e683b43edae77c05eee28281, type: 3}
       propertyPath: motorcycleOutlineSprite
       value: 
       objectReference: {fileID: 21300000, guid: 15a1d138956ddc34c93aac0d6aaf20d2, type: 3}

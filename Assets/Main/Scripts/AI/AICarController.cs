@@ -14,15 +14,20 @@ public class AICarController : BaseVehicle
     private GameObject _targetPlayer;
     private GameObject _pickup;
 
-    private bool selected = false;
     private GameObject targetObj;
-
+    private GameObject futureObj;
+    
+    private bool selected = false;
     public Sprite outlineSprite;
-    public Sprite targetSprite;
+    public Sprite crosshairSprite;
+    public Sprite crosshairSpriteRed;
+    public Sprite crosshairSpriteGreen;
+    public Sprite crosshairSpriteBlue;
     private GameObject outlineObj;
     private SpriteRenderer rend1;
     private SpriteRenderer rend2;
     private SpriteRenderer rend3;
+    private SpriteRenderer rend4;
 
     protected override void Start()
     {
@@ -33,6 +38,10 @@ public class AICarController : BaseVehicle
         targetObj.transform.localScale = Vector3.one * 5f;
         targetObj.transform.SetParent(transform);
         targetObj.transform.localPosition = Vector3.zero;
+        futureObj = new GameObject("futureObj");
+        futureObj.transform.localScale = Vector3.one * 5f;
+        futureObj.transform.localPosition = Vector3.zero;
+        futureObj.transform.SetPositionAndRotation(transform.position, Quaternion.identity);
 
         outlineObj = new GameObject("outlineObj");
         outlineObj.transform.localScale = transform.localScale;
@@ -47,15 +56,24 @@ public class AICarController : BaseVehicle
         rend3 = targetObj.AddComponent<SpriteRenderer>();
         rend3.transform.position = transform.position;
         rend3.transform.rotation = Quaternion.identity;
-        rend3.sprite = targetSprite;
+        rend3.sprite = crosshairSprite;
         rend3.enabled = false;
         rend3.sortingLayerName = "Cars";
         rend3.sortingOrder = rend1.sortingOrder + 2;
+        rend4 = futureObj.AddComponent<SpriteRenderer>();
+        rend4.transform.position = transform.position;
+        rend4.transform.rotation = Quaternion.identity;
+        rend4.sprite = crosshairSpriteBlue;
+        rend4.enabled = false;
+        rend4.sortingLayerName = "Cars";
+        rend4.sortingOrder = rend1.sortingOrder + 3;
     }
 
     protected override void FixedUpdate()
     {
         UpdateNearbyObjects();
+
+        futureObj.transform.SetPositionAndRotation(transform.position + (Vector3)rb.linearVelocity, Quaternion.identity);
 
         switch (_currentState)
         {
@@ -73,6 +91,8 @@ public class AICarController : BaseVehicle
 
         rend3.transform.position = targetObj.transform.position;
         rend3.transform.rotation = Quaternion.identity;
+        rend4.transform.position = futureObj.transform.position;
+        rend4.transform.rotation = Quaternion.identity;
     }
 
     private void MoveTowards(Vector2 target)
@@ -146,6 +166,7 @@ public class AICarController : BaseVehicle
         selected = true;
         rend2.enabled = true;
         rend3.enabled = _currentState != State.Idle;
+        rend4.enabled = true;
     }
 
     public void selectOff()
@@ -153,6 +174,7 @@ public class AICarController : BaseVehicle
         selected = false;
         rend2.enabled = false;
         rend3.enabled = false;
+        rend4.enabled = false;
     }
 
     protected void OnDisable()
