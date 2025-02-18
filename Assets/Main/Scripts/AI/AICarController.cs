@@ -16,6 +16,8 @@ public class AICarController : BaseVehicle
 
     private GameObject targetObj;
     private GameObject futureObj;
+    private int updateCounter;
+    private int wiggleFlipper;
     
     private bool selected = false;
     public Sprite outlineSprite;
@@ -42,6 +44,8 @@ public class AICarController : BaseVehicle
         futureObj.transform.localScale = Vector3.one * 5f;
         futureObj.transform.localPosition = Vector3.zero;
         futureObj.transform.SetPositionAndRotation(transform.position, Quaternion.identity);
+        updateCounter = 0;
+        wiggleFlipper = 10;
 
         outlineObj = new GameObject("outlineObj");
         outlineObj.transform.localScale = transform.localScale;
@@ -89,6 +93,13 @@ public class AICarController : BaseVehicle
                 break;
         }
 
+        updateCounter++;
+        if (updateCounter == Math.Abs(wiggleFlipper))
+        {
+            wiggleFlipper = -wiggleFlipper;
+            updateCounter = 0;
+        }
+
         rend3.transform.position = targetObj.transform.position;
         rend3.transform.rotation = Quaternion.identity;
         rend4.transform.position = futureObj.transform.position;
@@ -99,87 +110,79 @@ public class AICarController : BaseVehicle
     {
         Vector2 targetDir = (target - (Vector2)transform.position);
         float targetDistance = targetDir.magnitude;
-        float targetLocalAng = Mathf.Atan2(targetDir.y, targetDir.x) - ((transform.rotation.z + 90f) % 180f) * Mathf.Deg2Rad;
+        float targetLocalAng = Mathf.Atan2(targetDir.y, targetDir.x) -
+                               Mathf.Atan2(Mathf.Sin((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad),
+                                           Mathf.Cos((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad));
         Vector2 predictDir = (Vector2)(futureObj.transform.position - transform.position);
         float predictDistance = predictDir.magnitude;
-        float predictLocalAng = Mathf.Atan2(predictDir.y, predictDir.x) - ((transform.rotation.z + 90f) % 180f) * Mathf.Deg2Rad;
+        float predictLocalAng = Mathf.Atan2(predictDir.y, predictDir.x) -
+                                Mathf.Atan2(Mathf.Sin((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad),
+                                            Mathf.Cos((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad));
         float moveX = 0.7f;
         float moveY = 1f;
-        if (Mathf.Abs(targetLocalAng - predictLocalAng) > Mathf.PI / 36f)
+        if (Mathf.Abs(targetLocalAng) <= Mathf.PI / 36f)
         {
-            if (targetLocalAng >= 0f && targetLocalAng < Mathf.PI / 2f)
-            {
-                moveX = Mathf.Clamp(Mathf.Sin(targetLocalAng) * -2f, -0.75f, -0.5f);
-                moveY = Mathf.Clamp(Mathf.Sin(Mathf.Abs(predictLocalAng - targetLocalAng) / 2f) * 2f, 0.5f, 1f);
-            }
-            else if (targetLocalAng > Mathf.PI / -2f)
-            {
-                moveX = Mathf.Clamp(Mathf.Sin(targetLocalAng) * -2f, 0.5f, 0.75f);
-                moveY = Mathf.Clamp(Mathf.Sin(Mathf.Abs(predictLocalAng - targetLocalAng) / 2f) * 2f, 0.5f, 1f);
-            }
-            else if (targetLocalAng > 0f)
-            {
-                if (_currentState == State.Attacking)
-                {
-                    moveX = Mathf.Clamp(Mathf.Sin(Mathf.PI - targetLocalAng) * -2f, -0.75f, -0.5f);
-                    moveY = 0.5f;
-                }
-                else
-                {
-                    moveX = Mathf.Clamp(Mathf.Sin(Mathf.PI - targetLocalAng) * -2f, -0.75f, -0.5f);
-                    moveY = Mathf.Clamp(Mathf.Sin(Mathf.Abs(predictLocalAng - targetLocalAng) / 2f) * -2f, -1f, -0.5f);
-                }
-            }
-            else
-            {
-                if (_currentState == State.Attacking)
-                {
-                    moveX = Mathf.Clamp(Mathf.Sin(Mathf.PI + targetLocalAng) * 2f, 0.5f, 0.75f);
-                    moveY = 0.5f;
-                }
-                else
-                {
-                    moveX = Mathf.Clamp(Mathf.Sin(Mathf.PI + targetLocalAng) * 2f, 0.5f, 0.75f);
-                    moveY = Mathf.Clamp(Mathf.Sin(Mathf.Abs(predictLocalAng - targetLocalAng) / 2f) * -2f, -1f, -0.5f);
-                }
-            }
-        }
-        else if (targetDistance <= predictDistance)
-        {
-            moveX = 0f;
-            if (_currentState == State.Attacking) moveY = 1f;
-            else moveY = 0f;
-        }
-        else if (Mathf.Abs(targetLocalAng) <= Mathf.PI / 180f)
-        {
-            moveX = 0f;
+            moveX = Mathf.Sin(targetLocalAng) * -3f;
             moveY = 1f;
         }
-        else if (Mathf.PI - Mathf.Abs(targetLocalAng) <= Mathf.PI / 180f)
+        else if (Mathf.PI - Mathf.Abs(targetLocalAng) <= Mathf.PI / 36f)
         {
             if (_currentState == State.Attacking)
             {
-                moveX = 1f;
+                moveX = (float)Math.Sign(wiggleFlipper);
                 moveY = 1f;
             }
             else
             {
-                moveX = 0f;
+                moveX = Mathf.Sin(targetLocalAng) * 3f;
                 moveY = -1f;
+            }
+        }
+        else if (Mathf.Abs(targetLocalAng - predictLocalAng) <= Mathf.PI / 36f && targetDistance <= predictDistance)
+        {
+            if (_currentState == State.Attacking)
+            {
+                if (Mathf.PI - Mathf.Abs(targetLocalAng) <= Mathf.PI / 180f)
+                {
+                    moveX = (float)Math.Sign(wiggleFlipper);
+                    moveY = 1f;
+                }
+                else
+                {
+                    moveX = 0f;
+                    moveY = 1f;
+                }
+            }
+            else
+            {
+                moveX = 0f;
+                moveY = 0f;
             }
         }
         else
         {
-            if (_currentState == State.Attacking)
+            if (predictDistance >= 2.5f)
             {
-                moveX = Mathf.Sign(Mathf.Sign(targetLocalAng) + 0.5f) * -0.1f;
-                if (targetDistance >= 20f) moveY = -1f;
-                else moveY = 1f;
+                if (Mathf.Abs(predictLocalAng) <= Mathf.PI / 18f)
+                {
+                    moveX = 0f;
+                    moveY = -1f;
+                }
+                else if (Mathf.PI - Mathf.Abs(predictLocalAng) <= Mathf.PI / 18f)
+                {
+                    moveX = 0f;
+                    moveY = 1f;
+                }
+                else
+                {
+                    moveX = -Mathf.Sign(Mathf.Sign(targetLocalAng) + 0.5f);
+                    moveY = (float)Math.Sign(wiggleFlipper);
+                }
             }
             else
             {
-                moveX = Mathf.Sign(Mathf.Sign(targetLocalAng) + 0.5f) * -0.5f;
-                moveY = Mathf.Sign(Mathf.Sign(targetLocalAng) + 0.5f) * 0.5f;
+                moveX = -Mathf.Sign(Mathf.Sign(targetLocalAng) + 0.5f);
+                moveY = (float)Math.Sign(wiggleFlipper);
             }
         }
         Move(moveX, moveY);
