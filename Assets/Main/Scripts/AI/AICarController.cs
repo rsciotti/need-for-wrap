@@ -21,6 +21,7 @@ public class AICarController : BaseVehicle
     private GameObject futureObj;
     private int updateCounter;
     private int wiggleFlipper;
+    private float idleMoveX;
 
     private bool selected = false;
     public Sprite outlineSprite;
@@ -49,6 +50,7 @@ public class AICarController : BaseVehicle
         futureObj.transform.SetPositionAndRotation(transform.position, Quaternion.identity);
         updateCounter = 0;
         wiggleFlipper = 10;
+        idleMoveX = UnityEngine.Random.Range(0.6f, 0.8f) * Mathf.Sign(Mathf.Sign(UnityEngine.Random.Range(-1f, 1f)) + 0.5f);
 
         outlineObj = new GameObject("outlineObj");
         outlineObj.transform.localScale = transform.localScale;
@@ -95,7 +97,7 @@ public class AICarController : BaseVehicle
                 break;
             case State.Idle:
             default:
-                Move(0.7f, 1f);
+                Move(idleMoveX, 1f);
                 break;
         }
 
@@ -124,7 +126,7 @@ public class AICarController : BaseVehicle
         float predictLocalAng = Mathf.Atan2(predictDir.y, predictDir.x) -
                                 Mathf.Atan2(Mathf.Sin((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad),
                                             Mathf.Cos((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad));
-        float moveX = 0.7f;
+        float moveX = idleMoveX;
         float moveY = 1f;
         if (Mathf.Abs(targetLocalAng) <= Mathf.PI / 36f)
         {
