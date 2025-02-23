@@ -39,6 +39,9 @@ public class AICarController : BaseVehicle
     {
         base.Start();
         _currentState = State.Idle;
+        _targetPlayer = null;
+        _pickup = null;
+        _tennisBall = null;
 
         targetObj = new GameObject("targetObj");
         targetObj.transform.localScale = Vector3.one * 5f;
@@ -234,21 +237,38 @@ public class AICarController : BaseVehicle
                 if (targetDistance > 2.5f && tennisDistance < 10f) return;
             }
         }
+        else if (_currentState == State.Attacking)
+        {
+            if (_targetPlayer.activeSelf)
+            {
+                targetDir = ((Vector2)targetObj.transform.position - (Vector2)transform.position);
+                targetDistance = targetDir.magnitude;
+                if (targetDistance >= 25f) _targetPlayer = null;
+            }
+            else _targetPlayer = null;
+        }
+        else if (_currentState == State.GettingPickup)
+        {
+            if (_pickup) //Unity treats it as null if object is destroyed
+            {
+                targetDir = ((Vector2)targetObj.transform.position - (Vector2)transform.position);
+                targetDistance = targetDir.magnitude;
+                if (targetDistance >= 30f) _pickup = null;
+            }
+        }
 
         GameObject[] nearbyObjects = GetNearbyObjects();
 
-        _targetPlayer = null;
-        _pickup = null;
-        _tennisBall = null;
-
         foreach (var obj in nearbyObjects)
         {
-            if (obj.CompareTag("Player"))
+            if (_targetPlayer == null && obj.CompareTag("Player") && UnityEngine.Random.Range(0f, 1f) < 0.1f)
             {
-                _targetPlayer = obj;
+                targetDir = ((Vector2)obj.transform.position - (Vector2)transform.position);
+                targetDistance = targetDir.magnitude;
+                if (targetDistance <= 20f) _targetPlayer = obj;
             }
 
-            if (obj.CompareTag("Pickup"))
+            if (_pickup == null && obj.CompareTag("Pickup") && UnityEngine.Random.Range(0f, 1f) < 0.2f)
             {
                 _pickup = obj;
             }
@@ -271,7 +291,7 @@ public class AICarController : BaseVehicle
             predictLocalAng = Mathf.Atan2(predictDir.y, predictDir.x) -
                               Mathf.Atan2(Mathf.Sin((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad),
                                           Mathf.Cos((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad));
-            if ((tennisDir - predictDir).magnitude <= 10f)
+            if ((tennisDir - predictDir).magnitude <= 10f) //Tennis ball diameter is around 11 units
             {
                 targetObj.transform.SetParent(null);
                 targetObj.transform.localPosition = Vector3.zero;
