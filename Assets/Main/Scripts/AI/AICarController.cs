@@ -4,24 +4,56 @@ using static UnityEngine.GraphicsBuffer;
 
 public class AICarController : BaseVehicle
 {
-    public enum State
+    public struct State
     {
-        Idle,
-        Attacking,
-        GettingPickup,
-        AvoidTennis
+        public static readonly State Idle = new(0, "", 0f, 0f, -1f);
+        public static readonly State Attacking = new(1, "Player", 20f, 25f, 0.1f);
+        public static readonly State GettingPickup = new(1, "Pickup", 25f, 30f, 0.2f);
+        public static readonly State AvoidTennis = new(2, "TennisBall", 25f, 10f, 1f);
+
+        public static readonly State[] stateArray =
+        {
+            Idle,
+            Attacking,
+            GettingPickup,
+            AvoidTennis
+        };
+        public static readonly int stateCount = stateArray.Length;
+
+        public int Priority { get; } //higher overrides lower, equal does not override
+        public string ParentTag { get; }
+        public float startDistance { get; }
+        public float stopDistance { get; }
+        public float startChance { get; }
+
+        private State(int prio, string tag, float startDist, float stopDist, float chance)
+        {
+            Priority = prio;
+            ParentTag = tag;
+            startDistance = startDist;
+            stopDistance = stopDist;
+            startChance = chance;
+        }
     }
 
     private State _currentState;
-    private GameObject _targetPlayer;
-    private GameObject _pickup;
-    private GameObject _tennisBall;
+    private GameObject _targetParent;
 
     private GameObject targetObj;
     private GameObject futureObj;
     private int updateCounter;
     private int wiggleFlipper;
     private float idleMoveX;
+
+    private Vector2 parentDir;
+    private float parentDistance;
+    private float parentLocalAng;
+    private Vector2 predictDir;
+    private float predictDistance;
+    private float predictLocalAng;
+    private Vector2 targetDir;
+    private float targetDistance;
+    private float targetLocalAng;
 
     private bool selected = false;
     public Sprite outlineSprite;
@@ -39,14 +71,21 @@ public class AICarController : BaseVehicle
     {
         base.Start();
         _currentState = State.Idle;
-        _targetPlayer = null;
-        _pickup = null;
-        _tennisBall = null;
+        _targetParent = null;
+
+        parentDir = Vector2.zero;
+        parentDistance = 0f;
+        parentLocalAng = 0f;
+        predictDir = Vector2.zero;
+        predictDistance = 0f;
+        predictLocalAng = 0f;
+        targetDir = Vector2.zero;
+        targetDistance = 0f;
 
         targetObj = new GameObject("targetObj");
         targetObj.transform.localScale = Vector3.one * 5f;
-        targetObj.transform.SetParent(transform);
         targetObj.transform.localPosition = Vector3.zero;
+        targetObj.transform.SetPositionAndRotation(transform.position, Quaternion.identity);
         futureObj = new GameObject("futureObj");
         futureObj.transform.localScale = Vector3.one * 5f;
         futureObj.transform.localPosition = Vector3.zero;
@@ -84,25 +123,16 @@ public class AICarController : BaseVehicle
     protected override void FixedUpdate()
     {
         futureObj.transform.SetPositionAndRotation(transform.position + (Vector3)rb.linearVelocity, Quaternion.identity);
+        predictDir = (Vector2)(futureObj.transform.position - transform.position);
+        predictDistance = predictDir.magnitude;
+        predictLocalAng = Mathf.Atan2(predictDir.y, predictDir.x) -
+                          Mathf.Atan2(Mathf.Sin((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad),
+                                      Mathf.Cos((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad));
 
-        UpdateNearbyObjects();
+        DecideState();
 
-        switch (_currentState)
-        {
-            case State.Attacking:
-                MoveTowards(_targetPlayer.transform.position);
-                break;
-            case State.GettingPickup:
-                MoveTowards(_pickup.transform.position);
-                break;
-            case State.AvoidTennis:
-                MoveTowards(targetObj.transform.position);
-                break;
-            case State.Idle:
-            default:
-                Move(idleMoveX, 1f);
-                break;
-        }
+        if (_currentState.Priority == State.Idle.Priority) Move(idleMoveX, 1f);
+        else MoveTowards(targetObj.transform.position);
 
         updateCounter++;
         if (updateCounter == Math.Abs(wiggleFlipper))
@@ -119,16 +149,11 @@ public class AICarController : BaseVehicle
 
     private void MoveTowards(Vector2 target)
     {
-        Vector2 targetDir = (target - (Vector2)transform.position);
-        float targetDistance = targetDir.magnitude;
-        float targetLocalAng = Mathf.Atan2(targetDir.y, targetDir.x) -
-                               Mathf.Atan2(Mathf.Sin((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad),
-                                           Mathf.Cos((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad));
-        Vector2 predictDir = (Vector2)(futureObj.transform.position - transform.position);
-        float predictDistance = predictDir.magnitude;
-        float predictLocalAng = Mathf.Atan2(predictDir.y, predictDir.x) -
-                                Mathf.Atan2(Mathf.Sin((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad),
-                                            Mathf.Cos((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad));
+        targetDir = target - (Vector2)transform.position;
+        targetDistance = targetDir.magnitude;
+        targetLocalAng = Mathf.Atan2(targetDir.y, targetDir.x) -
+                         Mathf.Atan2(Mathf.Sin((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad),
+                                     Mathf.Cos((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad));
         float moveX = idleMoveX;
         float moveY = 1f;
         if (Mathf.Abs(targetLocalAng) <= Mathf.PI / 36f)
@@ -138,7 +163,7 @@ public class AICarController : BaseVehicle
         }
         else if (Mathf.PI - Mathf.Abs(targetLocalAng) <= Mathf.PI / 36f)
         {
-            if (_currentState == State.Attacking)
+            if (_currentState.ParentTag == State.Attacking.ParentTag)
             {
                 moveX = (float)Math.Sign(wiggleFlipper);
                 moveY = 1f;
@@ -151,7 +176,7 @@ public class AICarController : BaseVehicle
         }
         else if (Mathf.Abs(targetLocalAng - predictLocalAng) <= Mathf.PI / 36f && targetDistance <= predictDistance)
         {
-            if (_currentState == State.Attacking)
+            if (_currentState.ParentTag == State.Attacking.ParentTag)
             {
                 if (Mathf.PI - Mathf.Abs(targetLocalAng) <= Mathf.PI / 180f)
                 {
@@ -215,129 +240,77 @@ public class AICarController : BaseVehicle
         return nearbyObjects;
     }
 
-    private void UpdateNearbyObjects()
+    private void DecideState()
     {
-        Vector2 tennisDir = Vector2.zero;
-        float tennisDistance = 0f;
-        float tennisLocalAng = 0f;
-        Vector2 predictDir = Vector2.zero;
-        float predictDistance = 0f;
-        float predictLocalAng = 0f;
-        Vector2 targetDir = Vector2.zero;
-        float targetDistance = 0f;
-
-        if (_currentState == State.AvoidTennis)
+        if (_currentState.ParentTag == State.AvoidTennis.ParentTag)
         {
-            if (_tennisBall) //Unity treats it as null if object is destroyed
+            if (_targetParent) //Unity treats it as null if object is destroyed
             {
-                tennisDir = ((Vector2)_tennisBall.transform.position - (Vector2)transform.position);
-                tennisDistance = tennisDir.magnitude;
-                targetDir = ((Vector2)targetObj.transform.position - (Vector2)transform.position);
+                parentDir = (Vector2)(_targetParent.transform.position - transform.position);
+                parentDistance = parentDir.magnitude;
+                targetDir = (Vector2)(targetObj.transform.position - transform.position);
                 targetDistance = targetDir.magnitude;
-                if (targetDistance > 2.5f && tennisDistance < 10f) return;
+                if (targetDistance > 2.5f && parentDistance < 10f) return;
             }
         }
-        else if (_currentState == State.Attacking)
+        else if (_targetParent && _targetParent.activeSelf)
         {
-            if (_targetPlayer.activeSelf)
-            {
-                targetDir = ((Vector2)targetObj.transform.position - (Vector2)transform.position);
-                targetDistance = targetDir.magnitude;
-                if (targetDistance >= 25f) _targetPlayer = null;
-            }
-            else _targetPlayer = null;
+            targetDir = (Vector2)(targetObj.transform.position - transform.position);
+            targetDistance = targetDir.magnitude;
+            if (targetDistance >= _currentState.stopDistance) _targetParent = null;
         }
-        else if (_currentState == State.GettingPickup)
-        {
-            if (_pickup) //Unity treats it as null if object is destroyed
-            {
-                targetDir = ((Vector2)targetObj.transform.position - (Vector2)transform.position);
-                targetDistance = targetDir.magnitude;
-                if (targetDistance >= 30f) _pickup = null;
-            }
-        }
+        else _targetParent = null;
 
         GameObject[] nearbyObjects = GetNearbyObjects();
 
         foreach (var obj in nearbyObjects)
         {
-            if (_targetPlayer == null && obj.CompareTag("Player") && UnityEngine.Random.Range(0f, 1f) < 0.1f)
+            for (int i = 1; i < State.stateCount; i++)
             {
-                targetDir = ((Vector2)obj.transform.position - (Vector2)transform.position);
-                targetDistance = targetDir.magnitude;
-                if (targetDistance <= 20f) _targetPlayer = obj;
-            }
+                if (State.stateArray[i].Priority > _currentState.Priority &&
+                    obj.CompareTag(State.stateArray[i].ParentTag) &&
+                    UnityEngine.Random.Range(0f, 1f) <= State.stateArray[i].startChance)
+                {
+                    targetDir = (Vector2)(obj.transform.position - transform.position);
+                    targetDistance = targetDir.magnitude;
 
-            if (_pickup == null && obj.CompareTag("Pickup") && UnityEngine.Random.Range(0f, 1f) < 0.2f)
-            {
-                _pickup = obj;
-            }
-
-            if (obj.CompareTag("TennisBall"))
-            {
-                _tennisBall = obj;
-            }
-        }
-
-        if (_tennisBall)
-        {
-            tennisDir = ((Vector2)_tennisBall.transform.position - (Vector2)transform.position);
-            tennisDistance = tennisDir.magnitude;
-            tennisLocalAng = Mathf.Atan2(tennisDir.y, tennisDir.x) -
-                             Mathf.Atan2(Mathf.Sin((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad),
-                                         Mathf.Cos((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad));
-            predictDir = (Vector2)(futureObj.transform.position - transform.position);
-            predictDistance = predictDir.magnitude;
-            predictLocalAng = Mathf.Atan2(predictDir.y, predictDir.x) -
-                              Mathf.Atan2(Mathf.Sin((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad),
-                                          Mathf.Cos((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad));
-            if ((tennisDir - predictDir).magnitude <= 10f) //Tennis ball diameter is around 11 units
-            {
-                targetObj.transform.SetParent(null);
-                targetObj.transform.localPosition = Vector3.zero;
-                if (predictDistance < 2.5f || Mathf.Abs(predictLocalAng) > Mathf.PI / 2)
-                    targetObj.transform.position = transform.position - (Vector3)tennisDir;
-                else if (_currentState == State.Attacking)
-                    targetObj.transform.position = transform.position +
-                                                   (Vector3)(Vector2.Perpendicular(predictDir) *
-                                                             (float)Math.Sign(wiggleFlipper));
-                else switch (UnityEngine.Random.Range(0f, 1f))
+                    if (obj.CompareTag(State.AvoidTennis.ParentTag))
                     {
-                        case float f when (f > 0.1f && f <= 1f):
-                            targetObj.transform.position = transform.position +
-                                                           (Vector3)(Vector2.Perpendicular(predictDir) *
-                                                                     (float)Math.Sign(wiggleFlipper));
-                            break;
-                        default:
-                            targetObj.transform.position = transform.position - (Vector3)predictDir;
-                            break;
+                        if ((targetDir - predictDir).magnitude <= 10f) //Tennis ball diameter is around 11 units
+                        {
+                            targetObj.transform.SetParent(null);
+                            targetObj.transform.localPosition = Vector3.zero;
+                            if (predictDistance < 2.5f || Mathf.Abs(predictLocalAng) > Mathf.PI / 2)
+                                targetObj.transform.position = transform.position - (Vector3)targetDir;
+                            else if (_currentState.ParentTag == State.Attacking.ParentTag ||
+                                     UnityEngine.Random.Range(0f, 1f) > 0.1f)
+                                targetObj.transform.position = transform.position +
+                                                               (Vector3)(Vector2.Perpendicular(predictDir) *
+                                                                         (float)Math.Sign(wiggleFlipper));
+                            else
+                                targetObj.transform.position = transform.position - (Vector3)predictDir;
+                            rend3.enabled = selected;
+                            _currentState = State.AvoidTennis;
+                            return;
+                        }
                     }
-                rend3.enabled = selected;
-                _currentState = State.AvoidTennis;
-                return;
+                    else if (targetDistance <= State.stateArray[i].startDistance) _targetParent = obj;
+                }
             }
         }
 
-        if (_targetPlayer)
+        if (_targetParent)
         {
-            _currentState = State.Attacking;
-            targetObj.transform.SetParent(_targetPlayer.transform);
-            targetObj.transform.localPosition = Vector3.zero;
-            rend3.enabled = selected;
-        }
-        else if (_pickup)
-        {
-            _currentState = State.GettingPickup;
-            targetObj.transform.SetParent(null);
-            targetObj.transform.localPosition = Vector3.zero;
-            targetObj.transform.position = _pickup.transform.position;
+            for (int i = 1; i < State.stateCount; i++)
+                if (_targetParent.CompareTag(State.stateArray[i].ParentTag))
+                    _currentState = State.stateArray[i];
+            targetObj.transform.SetPositionAndRotation(_targetParent.transform.position, Quaternion.identity);
             rend3.enabled = selected;
         }
         else
         {
             _currentState = State.Idle;
-            targetObj.transform.SetParent(transform);
-            targetObj.transform.localPosition = Vector3.zero;
+            targetObj.transform.SetPositionAndRotation(transform.position, Quaternion.identity);
             rend3.enabled = false;
         }
     }
@@ -346,7 +319,7 @@ public class AICarController : BaseVehicle
     {
         selected = true;
         rend2.enabled = true;
-        rend3.enabled = _currentState != State.Idle;
+        rend3.enabled = _currentState.Priority != State.Idle.Priority;
         rend4.enabled = true;
     }
 
@@ -360,6 +333,8 @@ public class AICarController : BaseVehicle
 
     protected void OnDisable()
     {
+        targetObj.transform.SetPositionAndRotation(transform.position, Quaternion.identity);
+        targetObj.transform.localPosition = Vector3.zero;
         selectOff();
     }
 }
