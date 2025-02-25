@@ -296,7 +296,9 @@ public class AICarController : BaseVehicle
                                                                          (float)Math.Sign(wiggleFlipper));
                             else
                                 targetObj.transform.position = transform.position - (Vector3)predictDir;
+                            //DEBUGSTART
                             rend3.enabled = selected;
+                            //DEBUGEND
                             _currentState = State.AvoidTennis;
                             return;
                         }
