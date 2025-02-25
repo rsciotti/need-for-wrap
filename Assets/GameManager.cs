@@ -134,7 +134,7 @@ namespace Main.Scripts
                 _wrapController.PopAtLocation(aiCar.transform.position);
             }
 
-            //DEBUGSTART
+            /*DEBUGSTART
             if (Input.GetMouseButtonDown(0))
             {
                 //Debug.Log("Screen clicked at: " + Input.mousePosition);
@@ -168,7 +168,7 @@ namespace Main.Scripts
                     }
                 }
             }
-            //DEBUGEND
+            DEBUGEND*/
         }
     }
 }
