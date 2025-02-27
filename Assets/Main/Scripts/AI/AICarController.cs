@@ -6,10 +6,10 @@ public class AICarController : BaseVehicle
 {
     public struct State
     {
-        public static readonly State Idle = new(0, "", 0f, 0f, -1f);
-        public static readonly State Attacking = new(1, "Player", 20f, 25f, 0.1f);
-        public static readonly State GettingPickup = new(1, "Pickup", 25f, 30f, 0.2f);
-        public static readonly State AvoidTennis = new(2, "TennisBall", 25f, 10f, 1f);
+        public static readonly State Idle = new(0, 0, "", 0f, 0f, -1f);
+        public static readonly State Attacking = new(1, 1, "Player", 20f, 25f, 0.1f);
+        public static readonly State GettingPickup = new(2, 1, "Pickup", 25f, 30f, 0.2f);
+        public static readonly State AvoidTennis = new(3, 2, "TennisBall", 25f, 10f, 1f);
 
         public static readonly State[] stateArray =
         {
@@ -20,14 +20,16 @@ public class AICarController : BaseVehicle
         };
         public static readonly int stateCount = stateArray.Length;
 
+        public int ID { get; }
         public int Priority { get; } //higher overrides lower, equal does not override
         public string ParentTag { get; }
         public float startDistance { get; }
         public float stopDistance { get; }
         public float startChance { get; }
 
-        private State(int prio, string tag, float startDist, float stopDist, float chance)
+        private State(int id, int prio, string tag, float startDist, float stopDist, float chance)
         {
+            ID = id;
             Priority = prio;
             ParentTag = tag;
             startDistance = startDist;
@@ -136,9 +138,12 @@ public class AICarController : BaseVehicle
 
         DecideState();
 
-        if (_currentState.Priority == State.Idle.Priority) Move(idleMoveX, 1f);
+        if (_currentState.ID == State.Idle.ID) Move(idleMoveX, 1f);
         else MoveTowards(targetObj.transform.position);
 
+        //holding left or right while rapidly toggling between forward and backward
+        //allows rotation without having to build up speed
+        //wiggleFlipper's value controls how often the AI toggles when rotating
         updateCounter++;
         if (updateCounter == Math.Abs(wiggleFlipper))
         {
@@ -163,67 +168,84 @@ public class AICarController : BaseVehicle
                                      Mathf.Cos((transform.eulerAngles.z + 90f) * Mathf.Deg2Rad));
         float moveX = idleMoveX;
         float moveY = 1f;
+        //target ahead, +/- 5 degrees
         if (Mathf.Abs(targetLocalAng) <= Mathf.PI / 36f)
         {
+            //go forward, slight turn to target
             moveX = Mathf.Sin(targetLocalAng) * -3f;
             moveY = 1f;
         }
+        //target behind, +/- 5 degrees
         else if (Mathf.PI - Mathf.Abs(targetLocalAng) <= Mathf.PI / 36f)
         {
-            if (_currentState.ParentTag == State.Attacking.ParentTag)
+            if (_currentState.ID == State.Attacking.ID)
             {
+                //if attacking, go forward, turn left or right; to avoid damage from rear-end collision
                 moveX = (float)Math.Sign(wiggleFlipper);
                 moveY = 1f;
             }
             else
             {
+                //if not attacking, go backward, slight turn to target
                 moveX = Mathf.Sin(targetLocalAng) * 3f;
                 moveY = -1f;
             }
         }
+        //predicted motion to target, +/- 2.5 degrees, within 1 second
         else if (Mathf.Abs(targetLocalAng - predictLocalAng) <= Mathf.PI / 36f && targetDistance <= predictDistance)
         {
-            if (_currentState.ParentTag == State.Attacking.ParentTag)
+            if (_currentState.ID== State.Attacking.ID)
             {
                 if (Mathf.PI - Mathf.Abs(targetLocalAng) <= Mathf.PI / 180f)
                 {
+                    //if attacking, target behind AI, go forward, turn left or right; to avoid damage from rear-end collision
                     moveX = (float)Math.Sign(wiggleFlipper);
                     moveY = 1f;
                 }
                 else
                 {
+                    //if attacking, player not behind AI, go forward
                     moveX = 0f;
                     moveY = 1f;
                 }
             }
             else
             {
+                //if not attacking, do not accelerate or decelerate; to maintain direction of motion toward target
                 moveX = 0f;
                 moveY = 0f;
             }
         }
+        //not facing toward target, not facing away from target, not moving toward target
         else
         {
+            //not moving slowly or standing still
             if (predictDistance >= 2.5f)
             {
+                //facing same direction as movement, +/- 10 degrees
                 if (Mathf.Abs(predictLocalAng) <= Mathf.PI / 18f)
                 {
+                    //go backward; to slow down
                     moveX = 0f;
                     moveY = -1f;
                 }
+                //facing opposite direction as movement, +/- 10 degrees
                 else if (Mathf.PI - Mathf.Abs(predictLocalAng) <= Mathf.PI / 18f)
                 {
+                    //go forward; to slow down
                     moveX = 0f;
                     moveY = 1f;
                 }
                 else
                 {
+                    //rotate toward target; since going forward/backward doesn't slow sideways movement
                     moveX = -Mathf.Sign(Mathf.Sign(targetLocalAng) + 0.5f);
                     moveY = (float)Math.Sign(wiggleFlipper);
                 }
             }
             else
             {
+                //if moving slowly or standing still, rotate toward target
                 moveX = -Mathf.Sign(Mathf.Sign(targetLocalAng) + 0.5f);
                 moveY = (float)Math.Sign(wiggleFlipper);
             }
@@ -249,7 +271,9 @@ public class AICarController : BaseVehicle
 
     private void DecideState()
     {
-        if (_currentState.ParentTag == State.AvoidTennis.ParentTag)
+        State nextState = _currentState;
+
+        if (_currentState.ID == State.AvoidTennis.ID)
         {
             if (_targetParent) //Unity treats it as null if object is destroyed
             {
@@ -259,60 +283,73 @@ public class AICarController : BaseVehicle
                 targetDistance = targetDir.magnitude;
                 if (targetDistance > 2.5f && parentDistance < 10f) return;
             }
+            else _currentState = State.Idle;
         }
         else if (_targetParent && _targetParent.activeSelf)
         {
             targetDir = (Vector2)(targetObj.transform.position - transform.position);
             targetDistance = targetDir.magnitude;
-            if (targetDistance >= _currentState.stopDistance) _targetParent = null;
+            if (targetDistance >= _currentState.stopDistance)
+            {
+                _targetParent = null;
+                _currentState = State.Idle;
+            }
         }
-        else _targetParent = null;
+        else
+        {
+            _targetParent = null;
+            _currentState = State.Idle;
+        }
 
         GameObject[] nearbyObjects = GetNearbyObjects();
 
-        foreach (var obj in nearbyObjects)
+        for (int i = 1; i < State.stateCount; i++)
         {
-            for (int i = 1; i < State.stateCount; i++)
+            if (State.stateArray[i].Priority > _currentState.Priority)
             {
-                if (State.stateArray[i].Priority > _currentState.Priority &&
-                    obj.CompareTag(State.stateArray[i].ParentTag) &&
-                    UnityEngine.Random.Range(0f, 1f) <= State.stateArray[i].startChance)
+                foreach (var obj in nearbyObjects)
                 {
-                    targetDir = (Vector2)(obj.transform.position - transform.position);
-                    targetDistance = targetDir.magnitude;
-
-                    if (obj.CompareTag(State.AvoidTennis.ParentTag))
+                    if (obj.CompareTag(State.stateArray[i].ParentTag) &&
+                        UnityEngine.Random.Range(0f, 1f) <= State.stateArray[i].startChance)
                     {
-                        if ((targetDir - predictDir).magnitude <= 10f) //Tennis ball diameter is around 11 units
+                        targetDir = (Vector2)(obj.transform.position - transform.position);
+                        targetDistance = targetDir.magnitude;
+
+                        if (State.stateArray[i].ID == State.AvoidTennis.ID)
                         {
-                            targetObj.transform.SetParent(null);
-                            targetObj.transform.localPosition = Vector3.zero;
-                            if (predictDistance < 2.5f || Mathf.Abs(predictLocalAng) > Mathf.PI / 2)
-                                targetObj.transform.position = transform.position - (Vector3)targetDir;
-                            else if (_currentState.ParentTag == State.Attacking.ParentTag ||
-                                     UnityEngine.Random.Range(0f, 1f) > 0.1f)
-                                targetObj.transform.position = transform.position +
-                                                               (Vector3)(Vector2.Perpendicular(predictDir) *
-                                                                         (float)Math.Sign(wiggleFlipper));
-                            else
-                                targetObj.transform.position = transform.position - (Vector3)predictDir;
-                            //DEBUGSTART
-                            rend3.enabled = selected;
-                            //DEBUGEND
-                            _currentState = State.AvoidTennis;
-                            return;
+                            if ((targetDir - predictDir).magnitude <= 10f) //Tennis ball diameter is around 11 units
+                            {
+                                targetObj.transform.SetParent(null);
+                                targetObj.transform.localPosition = Vector3.zero;
+                                if (predictDistance < 2.5f || Mathf.Abs(predictLocalAng) > Mathf.PI / 2)
+                                    targetObj.transform.position = transform.position - (Vector3)targetDir;
+                                else if (_currentState.ID == State.Attacking.ID ||
+                                         UnityEngine.Random.Range(0f, 1f) > 0.1f)
+                                    targetObj.transform.position = transform.position +
+                                                                   (Vector3)(Vector2.Perpendicular(predictDir) *
+                                                                             (float)Math.Sign(wiggleFlipper));
+                                else
+                                    targetObj.transform.position = transform.position - (Vector3)predictDir;
+                                //DEBUGSTART
+                                rend3.enabled = selected;
+                                //DEBUGEND
+                                _currentState = State.AvoidTennis;
+                                return;
+                            }
+                        }
+                        else if (targetDistance <= State.stateArray[i].startDistance)
+                        {
+                            _targetParent = obj;
+                            nextState = State.stateArray[i];
                         }
                     }
-                    else if (targetDistance <= State.stateArray[i].startDistance) _targetParent = obj;
                 }
             }
         }
 
         if (_targetParent)
         {
-            for (int i = 1; i < State.stateCount; i++)
-                if (_targetParent.CompareTag(State.stateArray[i].ParentTag))
-                    _currentState = State.stateArray[i];
+            _currentState = nextState;
             targetObj.transform.SetPositionAndRotation(_targetParent.transform.position, Quaternion.identity);
             //DEBUGSTART
             rend3.enabled = selected;
@@ -333,7 +370,7 @@ public class AICarController : BaseVehicle
     {
         selected = true;
         rend2.enabled = true;
-        rend3.enabled = _currentState.Priority != State.Idle.Priority;
+        rend3.enabled = _currentState.ID != State.Idle.ID;
         rend4.enabled = true;
     }
 
