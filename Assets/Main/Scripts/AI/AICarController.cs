@@ -7,16 +7,18 @@ public class AICarController : BaseVehicle
     public struct State
     {
         public static readonly State Idle = new(0, 0, "", 0f, 0f, -1f);
-        public static readonly State Attacking = new(1, 1, "Player", 20f, 25f, 0.1f);
-        public static readonly State GettingPickup = new(2, 1, "Pickup", 25f, 30f, 0.2f);
-        public static readonly State AvoidTennis = new(3, 2, "TennisBall", 25f, 10f, 1f);
+        public static readonly State Attacking = new(3, 1, "Player", 20f, 25f, 0.1f);
+        public static readonly State GettingPickup = new(4, 1, "Pickup", 25f, 30f, 0.2f);
+        public static readonly State AvoidTennis = new(2, 3, "TennisBall", 25f, 10f, 1f);
+        public static readonly State AvoidPlayer = new(1, 2, "Player", 25f, 20f, 1f);
 
         public static readonly State[] stateArray =
         {
             Idle,
+            AvoidPlayer,
+            AvoidTennis,
             Attacking,
-            GettingPickup,
-            AvoidTennis
+            GettingPickup
         };
         public static readonly int stateCount = stateArray.Length;
 
@@ -46,6 +48,7 @@ public class AICarController : BaseVehicle
     private int updateCounter;
     private int wiggleFlipper;
     private float idleMoveX;
+    HealthController myHealth;
 
     private Vector2 parentDir;
     private float parentDistance;
@@ -77,6 +80,7 @@ public class AICarController : BaseVehicle
         base.Start();
         _currentState = State.Idle;
         _targetParent = null;
+        myHealth = GetComponent<HealthController>();
 
         parentDir = Vector2.zero;
         parentDistance = 0f;
@@ -273,39 +277,75 @@ public class AICarController : BaseVehicle
     {
         State nextState = _currentState;
 
-        if (_currentState.ID == State.AvoidTennis.ID)
+        switch(_currentState.ID)
         {
-            if (_targetParent) //Unity treats it as null if object is destroyed
-            {
-                parentDir = (Vector2)(_targetParent.transform.position - transform.position);
-                parentDistance = parentDir.magnitude;
-                targetDir = (Vector2)(targetObj.transform.position - transform.position);
-                targetDistance = targetDir.magnitude;
-                if (targetDistance > 2.5f && parentDistance < 10f) return;
-            }
-            else _currentState = State.Idle;
-        }
-        else if (_targetParent && _targetParent.activeSelf)
-        {
-            targetDir = (Vector2)(targetObj.transform.position - transform.position);
-            targetDistance = targetDir.magnitude;
-            if (targetDistance >= _currentState.stopDistance)
-            {
-                _targetParent = null;
-                _currentState = State.Idle;
-            }
-        }
-        else
-        {
-            _targetParent = null;
-            _currentState = State.Idle;
+            case int s when s == State.AvoidTennis.ID:
+                if (_targetParent) //Unity treats it as null if object is destroyed
+                {
+                    parentDir = (Vector2)(_targetParent.transform.position - transform.position);
+                    parentDistance = parentDir.magnitude;
+                    targetDir = (Vector2)(targetObj.transform.position - transform.position);
+                    targetDistance = targetDir.magnitude;
+                    if (targetDistance > 1f && parentDistance < State.AvoidTennis.stopDistance) return;
+                    else
+                    {
+                        _targetParent = null;
+                        _currentState = State.Idle;
+                    }
+                }
+                else
+                {
+                    _targetParent = null;
+                    _currentState = State.Idle;
+                }
+                break;
+            case int s when s == State.AvoidPlayer.ID:
+                if (_targetParent)
+                {
+                    parentDir = (Vector2)(_targetParent.transform.position - transform.position);
+                    parentDistance = parentDir.magnitude;
+                    targetDir = (Vector2)(targetObj.transform.position - transform.position);
+                    targetDistance = targetDir.magnitude;
+                    if (targetDistance <= 1f ||
+                        parentDistance <= 1f || //player too close, re-evaluate where to flee
+                        parentDistance >= State.AvoidPlayer.stopDistance)
+                    {
+                        _targetParent = null;
+                        _currentState = State.Idle;
+                    }
+                }
+                else
+                {
+                    _targetParent = null;
+                    _currentState = State.Idle;
+                }
+                break;
+            default:
+                if (_targetParent && _targetParent.activeSelf)
+                {
+                    targetDir = (Vector2)(targetObj.transform.position - transform.position);
+                    targetDistance = targetDir.magnitude;
+                    if (targetDistance >= _currentState.stopDistance)
+                    {
+                        _targetParent = null;
+                        _currentState = State.Idle;
+                    }
+                }
+                else
+                {
+                    _targetParent = null;
+                    _currentState = State.Idle;
+                }
+                break;
         }
 
         GameObject[] nearbyObjects = GetNearbyObjects();
 
         for (int i = 1; i < State.stateCount; i++)
         {
-            if (State.stateArray[i].Priority > _currentState.Priority)
+            if (State.stateArray[i].Priority > _currentState.Priority &&
+                (i != State.AvoidPlayer.ID ||
+                 myHealth.GetHealth() * 2 <= myHealth.GetMaxHealth()))
             {
                 foreach (var obj in nearbyObjects)
                 {
@@ -315,32 +355,62 @@ public class AICarController : BaseVehicle
                         targetDir = (Vector2)(obj.transform.position - transform.position);
                         targetDistance = targetDir.magnitude;
 
-                        if (State.stateArray[i].ID == State.AvoidTennis.ID)
+                        switch (i)
                         {
-                            if ((targetDir - predictDir).magnitude <= 10f) //Tennis ball diameter is around 11 units
-                            {
-                                targetObj.transform.SetParent(null);
-                                targetObj.transform.localPosition = Vector3.zero;
-                                if (predictDistance < 2.5f || Mathf.Abs(predictLocalAng) > Mathf.PI / 2)
-                                    targetObj.transform.position = transform.position - (Vector3)targetDir;
-                                else if (_currentState.ID == State.Attacking.ID ||
-                                         UnityEngine.Random.Range(0f, 1f) > 0.1f)
-                                    targetObj.transform.position = transform.position +
-                                                                   (Vector3)(Vector2.Perpendicular(predictDir) *
-                                                                             (float)Math.Sign(wiggleFlipper));
-                                else
-                                    targetObj.transform.position = transform.position - (Vector3)predictDir;
-                                /*DEBUGSTART
-                                rend3.enabled = selected;
-                                DEBUGEND*/
-                                _currentState = State.AvoidTennis;
-                                return;
-                            }
-                        }
-                        else if (targetDistance <= State.stateArray[i].startDistance)
-                        {
-                            _targetParent = obj;
-                            nextState = State.stateArray[i];
+                            case int s when s == State.AvoidTennis.ID:
+                                if ((targetDir - predictDir).magnitude <= 10f) //Tennis ball diameter is around 11 units
+                                {
+                                    targetObj.transform.SetParent(null);
+                                    targetObj.transform.localPosition = Vector3.zero;
+                                    if (predictDistance < 2.5f || Mathf.Abs(predictLocalAng) > Mathf.PI / 2)
+                                        targetObj.transform.position = transform.position - (Vector3)targetDir;
+                                    else if (_currentState.ID == State.Attacking.ID ||
+                                             UnityEngine.Random.Range(0f, 1f) > 0.1f)
+                                        targetObj.transform.position = transform.position +
+                                                                       (Vector3)(Vector2.Perpendicular(targetDir) *
+                                                                                 (float)Math.Sign(wiggleFlipper));
+                                    else
+                                        targetObj.transform.position = transform.position - (Vector3)targetDir;
+                                    /*DEBUGSTART
+                                    rend3.enabled = selected;
+                                    DEBUGEND*/
+                                    _targetParent = obj;
+                                    _currentState = State.AvoidTennis;
+                                    return;
+                                }
+                                break;
+                            case int s when s == State.AvoidPlayer.ID:
+                                if (_targetParent == null)
+                                {
+                                    parentDir = (Vector2)(obj.transform.position +
+                                                 (Vector3)obj.GetComponent<Rigidbody2D>().linearVelocity -
+                                                 transform.position);
+                                    parentDistance = parentDir.magnitude;
+                                    if ((parentDir - predictDir).magnitude <= 5f)
+                                    {
+                                        targetObj.transform.SetParent(null);
+                                        targetObj.transform.localPosition = Vector3.zero;
+                                        if (predictDistance < 2.5f)
+                                            targetObj.transform.position = transform.position - (Vector3)parentDir;
+                                        else
+                                            targetObj.transform.position = transform.position +
+                                                                           (Vector3)(Vector2.Perpendicular(predictDir) *
+                                                                                     (float)Math.Sign(wiggleFlipper));
+                                        /*DEBUGSTART
+                                        rend3.enabled = selected;
+                                        DEBUGEND*/
+                                        _targetParent = obj;
+                                        nextState = State.AvoidPlayer;
+                                    }
+                                }
+                                break;
+                            default:
+                                if (targetDistance <= State.stateArray[i].startDistance)
+                                {
+                                    _targetParent = obj;
+                                    nextState = State.stateArray[i];
+                                }
+                                break;
                         }
                     }
                 }
@@ -350,7 +420,8 @@ public class AICarController : BaseVehicle
         if (_targetParent)
         {
             _currentState = nextState;
-            targetObj.transform.SetPositionAndRotation(_targetParent.transform.position, Quaternion.identity);
+            if (!(_currentState.ID == State.AvoidPlayer.ID || _currentState.ID == State.AvoidTennis.ID))
+                targetObj.transform.SetPositionAndRotation(_targetParent.transform.position, Quaternion.identity);
             /*DEBUGSTART
             rend3.enabled = selected;
             DEBUGEND*/
