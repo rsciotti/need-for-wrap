@@ -7,6 +7,7 @@ namespace Main.Scripts
         public static SoundManager Instance { get; private set; }
 
         private AudioSource _audioSource;
+        private AudioSource _musicSource;
 
         private void Awake()
         {
@@ -17,13 +18,21 @@ namespace Main.Scripts
             else 
             { 
                 Instance = this;
-                _audioSource = GetComponent<AudioSource>();
+                _audioSource = GetComponents<AudioSource>()[0];
+                _musicSource = GetComponents<AudioSource>()[1];
             }
         }
 
         public void PlaySoundEffect(AudioClip clip)
         {
             _audioSource.PlayOneShot(clip);
+        }
+
+        public void PlayMusic(AudioClip clip)
+        {
+            _musicSource.Stop();
+            _musicSource.clip = clip;
+            _musicSource.Play();
         }
     }
 }

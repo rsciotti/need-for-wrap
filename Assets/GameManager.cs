@@ -30,7 +30,20 @@ namespace Main.Scripts
         
         private float timer = 6f;
         private float interval = 8f; // Time interval in seconds
-        
+
+        [SerializeField] private AudioClip[] music;
+
+        //music assigned to Assets/Main/Prefabs/Globals/GameManager.prefab
+        private enum MusicIndex
+        {
+            GameTrack120, //Assets/Main/Audio/Music/FunInAWarehouse120.mp3
+            GameTrack130, //Assets/Main/Audio/Music/FunInAWarehouse130.mp3
+            GameTrack140, //Assets/Main/Audio/Music/FunInAWarehouse140.mp3
+            GameTrack150 //Assets/Main/Audio/Music/FunInAWarehouse.mp3
+        }
+
+        private bool firstUpdate = true;
+
         public WrapController GetWrapController() {
             return _wrapController;
         }
@@ -103,7 +116,13 @@ namespace Main.Scripts
             {
                 Application.Quit();
             }
-            
+
+            if (firstUpdate)
+            {
+                SoundManager.Instance.PlayMusic(music[(int)MusicIndex.GameTrack120]);
+                firstUpdate = false;
+            }
+
             timer += Time.deltaTime;
             
             if (timer >= interval)
