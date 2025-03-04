@@ -43,6 +43,8 @@ namespace Main.Scripts
         }
 
         private bool firstUpdate = true;
+        private int highScore = 0;
+        private int musicSpeedThreshold;
 
         public WrapController GetWrapController() {
             return _wrapController;
@@ -120,6 +122,7 @@ namespace Main.Scripts
             if (firstUpdate)
             {
                 SoundManager.Instance.PlayMusic(music[(int)MusicIndex.GameTrack120]);
+                musicSpeedThreshold = winningScore / 4;
                 firstUpdate = false;
             }
 
@@ -138,15 +141,38 @@ namespace Main.Scripts
                 if (_wrapController.PopAtLocation(player.transform.position)) {
                     _popCounter.incrementPopped(player.playerIndex);
 
-
-                    if(player.playerIndex >= 0 && player.playerIndex < _popCounter.bubblesPopped.Length && _popCounter.bubblesPopped[player.playerIndex] >= winningScore)
+                    if(player.playerIndex >= 0 && player.playerIndex < _popCounter.bubblesPopped.Length)
                     {
-                        winPanel.SetActive(true);
-                        string text = "Player " + color + " wins!\n Popped " + winningScore + " bubbles!";
-                        winText.text = text;
-                        Time.timeScale = 0f; // Pause the game
+                        if (_popCounter.bubblesPopped[player.playerIndex] >= winningScore)
+                        {
+                            winPanel.SetActive(true);
+                            string text = "Player " + color + " wins!\n Popped " + winningScore + " bubbles!";
+                            winText.text = text;
+                            Time.timeScale = 0f; // Pause the game
+                        }
+                        else if (_popCounter.bubblesPopped[player.playerIndex] > highScore)
+                            highScore = _popCounter.bubblesPopped[player.playerIndex];
                     }
                 }
+            }
+
+            if (highScore >= musicSpeedThreshold)
+            {
+                switch (musicSpeedThreshold)
+                {
+                    case int s when s == winningScore / 4:
+                        SoundManager.Instance.NewMusicSpeed(music[(int)MusicIndex.GameTrack130]);
+                        break;
+                    case int s when s == winningScore / 4 * 2:
+                        SoundManager.Instance.NewMusicSpeed(music[(int)MusicIndex.GameTrack140]);
+                        break;
+                    case int s when s == winningScore / 4 * 3:
+                        SoundManager.Instance.NewMusicSpeed(music[(int)MusicIndex.GameTrack150]);
+                        break;
+                    default:
+                        break;
+                }
+                musicSpeedThreshold += winningScore / 4;
             }
 
             foreach (GameObject aiCar in _aiCarObjList) {

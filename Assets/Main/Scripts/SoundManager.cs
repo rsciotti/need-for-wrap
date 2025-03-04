@@ -34,5 +34,19 @@ namespace Main.Scripts
             _musicSource.clip = clip;
             _musicSource.Play();
         }
+
+        public void NewMusicSpeed(AudioClip clip)
+        {
+            float pos = (_musicSource.time / _musicSource.clip.length) * clip.length;
+            _musicSource.Stop();
+            _musicSource.clip = clip;
+            _musicSource.time = pos;
+            _musicSource.Play();
+        }
+
+        public AudioClip GetCurrentMusic()
+        {
+            return _musicSource.clip;
+        }
     }
 }
