@@ -4,6 +4,10 @@ using UnityEngine.UI;
 using System.Collections;
 using System;
 using Main.Scripts;
+using Unity.VisualScripting;
+using UnityEditor.Animations;
+using UnityEngine.InputSystem;
+using System.Reflection;
 
 public class HealthController : MonoBehaviour
 {
@@ -57,6 +61,7 @@ public class HealthController : MonoBehaviour
 
     public void Damage(int amount) {
         Debug.Log("Damage called!");
+        if (gameObject.GetComponent<BaseVehicle>().GetInverseState()) health = 0;
         UpdateHealth(health - amount);
     }
 
@@ -96,8 +101,20 @@ public class HealthController : MonoBehaviour
     }
 
     private void OnDeath() {
-        Instantiate(deathAnimation, transform.position, Quaternion.identity);
-        SoundManager.Instance.PlaySoundEffect(deathSounds[rng.Next(deathSounds.Length)]);
+        GameObject da = Instantiate(deathAnimation, transform.position, Quaternion.identity);
+        if (gameObject.GetComponent<BaseVehicle>().GetInverseState())
+        {
+            da.GetComponentInChildren<SpriteRenderer>().material.shader =
+                GameManager.Instance.GetComponent<SpriteRenderer>().material.shader;
+            SoundManager.Instance.PlaySoundEffect(deathSounds[rng.Next(deathSounds.Length)]);
+        }
+        else SoundManager.Instance.PlaySoundEffect(deathSounds[rng.Next(deathSounds.Length)]);
+
+        float boomRadius = 2f;
+        if (gameObject.CompareTag("Player")) boomRadius = 3f;
+        bool inverse = gameObject.GetComponent<BaseVehicle>().GetInverseState();
+        GameManager.Instance.boom(gameObject.transform.position, boomRadius, inverse);
+
         gameObject.SetActive(false);
     }
 

@@ -17,6 +17,7 @@ public class PlayerController : BaseVehicle
 
     protected override void FixedUpdate()
     {
+        if (inverseState) base.inverseTick();
         if (Input.GetJoystickNames().Length > 0 && x != 0 || y != 0)
         {
             Move(x, y);

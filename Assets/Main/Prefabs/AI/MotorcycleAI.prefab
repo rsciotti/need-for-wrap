@@ -61,6 +61,10 @@ PrefabInstance:
       value: AI
       objectReference: {fileID: 0}
     - target: {fileID: 6283148618248961461, guid: b5108c32e683b43edae77c05eee28281, type: 3}
+      propertyPath: invertColor
+      value: 
+      objectReference: {fileID: 2100000, guid: ae1ad4763fba2324bb41edffa040d7e7, type: 2}
+    - target: {fileID: 6283148618248961461, guid: b5108c32e683b43edae77c05eee28281, type: 3}
       propertyPath: targetSprite
       value: 
       objectReference: {fileID: 21300000, guid: 765372228b511c340bd929f9f806ab2c, type: 3}

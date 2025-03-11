@@ -1,3 +1,4 @@
+using Main.Scripts;
 using Unity.Mathematics.Geometry;
 using UnityEngine;
 
@@ -20,6 +21,11 @@ public abstract class BaseVehicle : MonoBehaviour
     protected Collider2D collider2D;
     private float topAngle;
 
+    protected Material baseMaterial;
+    protected Material currentMaterial;
+    protected bool inverseState = false;
+    protected int inverseFrames = 0;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected virtual void Start()
     {
@@ -29,6 +35,9 @@ public abstract class BaseVehicle : MonoBehaviour
         Vector2 size = GetComponent<BoxCollider2D>().size;
         size = Vector2.Scale (size, (Vector2)transform.localScale);
         topAngle = Mathf.Atan(size.x / size.y) * Mathf.Rad2Deg;
+
+        baseMaterial = GetComponent<SpriteRenderer>().material;
+        currentMaterial = baseMaterial;
     }
 
     protected abstract void FixedUpdate();
@@ -85,6 +94,31 @@ public abstract class BaseVehicle : MonoBehaviour
         if(rb.linearVelocity.magnitude > MaxSpeed)
         {
             rb.linearVelocity = rb.linearVelocity.normalized * MaxSpeed;
+        }
+    }
+
+    public bool GetInverseState()
+    {
+        return inverseState;
+    }
+
+    public void inverseStart()
+    {
+        inverseState = true;
+        inverseFrames = 500;
+        currentMaterial = new Material(GameManager.Instance.GetComponent<SpriteRenderer>().material.shader);
+        currentMaterial.mainTexture = baseMaterial.mainTexture;
+        GetComponent<SpriteRenderer>().material = currentMaterial;
+    }
+
+    protected void inverseTick()
+    {
+        inverseFrames -= 1;
+        if (inverseFrames <= 0)
+        {
+            inverseState = false;
+            currentMaterial = baseMaterial;
+            GetComponent<SpriteRenderer>().material = currentMaterial;
         }
     }
 }

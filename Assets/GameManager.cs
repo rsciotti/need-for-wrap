@@ -3,6 +3,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
+using System;
+using System.Reflection;
 
 
 namespace Main.Scripts
@@ -97,9 +99,16 @@ namespace Main.Scripts
 
         private void OnPlayerHealthChange(int health, int index) {
             if (health == 0) {
-                _wrapController.PopWithinRadius(_playerList[index].transform.position, 3f);
                 _popCounter.decrementPopped(index, _deathPenalty);
             }
+        }
+
+        public void boom(Vector3 pos, float radius, bool inverse)
+        {
+            if (inverse)
+                _wrapController.SetWithinRadius(pos, radius * 2f, false);
+            else
+                _wrapController.SetWithinRadius(pos, radius, true);
         }
 
         private void OnDestroy()
@@ -130,7 +139,9 @@ namespace Main.Scripts
             
             if (timer >= interval)
             {
-                _aiCarObjList.Add(Instantiate(_aiCarControllerGameObj, new Vector3(Random.Range(-10f, 10f), Random.Range(-10f, 10f), 0), Quaternion.identity));
+                _aiCarObjList.Add(Instantiate(_aiCarControllerGameObj,
+                                  new Vector3(UnityEngine.Random.Range(-10f, 10f),
+                                              UnityEngine.Random.Range(-10f, 10f), 0), Quaternion.identity));
                 
                 // Reset the timer
                 timer = 0f;
@@ -138,7 +149,8 @@ namespace Main.Scripts
             
             foreach (PlayerInput player in _playerList)
             {
-                if (_wrapController.PopAtLocation(player.transform.position)) {
+                if (_wrapController.SetAtLocation(player.transform.position,
+                                                  !player.GetComponent<BaseVehicle>().GetInverseState())) {
                     _popCounter.incrementPopped(player.playerIndex);
 
                     if(player.playerIndex >= 0 && player.playerIndex < _popCounter.bubblesPopped.Length)
@@ -172,11 +184,11 @@ namespace Main.Scripts
                     default:
                         break;
                 }
-                musicSpeedThreshold += winningScore / 4;
+                musicSpeedThreshold += Math.Max(winningScore / 4, 1);
             }
 
             foreach (GameObject aiCar in _aiCarObjList) {
-                _wrapController.PopAtLocation(aiCar.transform.position);
+                _wrapController.SetAtLocation(aiCar.transform.position, !aiCar.GetComponent<BaseVehicle>().GetInverseState());
             }
 
             /*DEBUGSTART

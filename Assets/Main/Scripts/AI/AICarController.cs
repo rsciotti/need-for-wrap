@@ -1,6 +1,9 @@
+using System.Collections.Generic;
 using System;
+using NUnit.Framework;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
+using Unity.VisualScripting;
 
 public class AICarController : BaseVehicle
 {
@@ -133,6 +136,7 @@ public class AICarController : BaseVehicle
 
     protected override void FixedUpdate()
     {
+        if (inverseState) base.inverseTick();
         futureObj.transform.SetPositionAndRotation(transform.position + (Vector3)rb.linearVelocity, Quaternion.identity);
         predictDir = (Vector2)(futureObj.transform.position - transform.position);
         predictDistance = predictDir.magnitude;
@@ -345,7 +349,7 @@ public class AICarController : BaseVehicle
         {
             if (State.stateArray[i].Priority > _currentState.Priority &&
                 (i != State.AvoidPlayer.ID ||
-                 myHealth.GetHealth() * 2 <= myHealth.GetMaxHealth()))
+                 (myHealth.GetHealth() * 2 <= myHealth.GetMaxHealth()) && !base.GetInverseState()))
             {
                 foreach (var obj in nearbyObjects)
                 {

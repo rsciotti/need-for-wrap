@@ -26,6 +26,6 @@ public class TennisBallScript : MonoBehaviour
 
     public void OnLanded() {
         var bounds = GetComponent<Collider2D>().bounds;
-        GameManager.Instance.GetWrapController().PopWithinBounds(bounds.min, bounds.max);
+        GameManager.Instance.GetWrapController().SetWithinBounds(bounds.min, bounds.max, true);
     }
 }

@@ -21,32 +21,42 @@ public class WrapController : MonoBehaviour
     
     
     /// <summary>
-    /// Pops bubble at location.  Returns true if it was just popped; false if it was already popped.
+    /// Pops(newState True) or unpops(newState False) bubble at location.
     /// </summary>
-    /// <param name="topLeft"></param>
-    /// <param name="bottomRight"></param>
-    /// <returns>Number of popped bubbles</returns>
-    public bool PopAtLocation(Vector2 location)
+    /// <param name="location"></param>
+    /// <param name="newState"></param>
+    /// <returns>True = changed state, False = no change</returns>
+    public bool SetAtLocation(Vector2 location, bool newState)
     {
         Vector3Int cell = _tileMap.WorldToCell(location);
         BubbleTile oldTile = _tileMap.GetTile<BubbleTile>(cell);
-        if (!oldTile || oldTile.popped)
+        if (!oldTile || oldTile.popped == newState)
         {
             return false;
         }
-        _tileMap.SetTile(cell, poppedTile);
-        SoundManager.Instance.PlaySoundEffect(poppingSounds[Random.Range(0, 100) % poppingSounds.Length]);
-        
+
+        if (newState)
+        {
+            _tileMap.SetTile(cell, poppedTile);
+            SoundManager.Instance.PlaySoundEffect(poppingSounds[Random.Range(0, 100) % poppingSounds.Length]);
+        }
+        else
+        {
+            _tileMap.SetTile(cell, unpoppedTile);
+            SoundManager.Instance.PlaySoundEffect(poppingSounds[Random.Range(0, 100) % poppingSounds.Length]);
+        }
+
         return true;
     }
 
     /// <summary>
-    /// Pops all bubble wrap tiles within a rectangle
+    /// Pops(newState True) or unpops(newState False) all bubble wrap tiles within a rectangle
     /// </summary>
     /// <param name="topLeft"></param>
     /// <param name="bottomRight"></param>
-    /// <returns>Number of popped bubbles</returns>
-    public int PopWithinBounds(Vector2 topLeft, Vector2 bottomRight)
+    /// /// <param name="newState"></param>
+    /// <returns>Number of changed bubbles</returns>
+    public int SetWithinBounds(Vector2 topLeft, Vector2 bottomRight, bool newState)
     {
         Vector3Int topLeftBounds = _tileMap.WorldToCell(topLeft);
         Vector3Int bottomRightBounds = _tileMap.WorldToCell(bottomRight);
@@ -56,7 +66,7 @@ public class WrapController : MonoBehaviour
         {
             for (int y = topLeftBounds.y; y < bottomRightBounds.y; y++)
             {
-                PopAtLocation(new Vector2(x, y));
+                SetAtLocation(new Vector2(x, y), newState);
                 poppedBubbles++;
             }
         }
@@ -64,13 +74,13 @@ public class WrapController : MonoBehaviour
         return poppedBubbles;
     }
 
-    public int PopWithinRadius(Vector2 center, float radius) {
+    public int SetWithinRadius(Vector2 center, float radius, bool newState) {
         int poppedBubbles = 0;
 
         // Higher scale will leave some bubbles unpopped (0.5f to pop all bubbles)
         IEnumerable<Vector2> pointsInCircle = PointsInCircle(center, radius, 1f);
         foreach (Vector2 point in pointsInCircle) {
-            if (PopAtLocation(point)) {
+            if (SetAtLocation(point, newState)) {
                 poppedBubbles++;
             }
         }
