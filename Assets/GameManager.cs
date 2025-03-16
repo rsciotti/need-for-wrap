@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 using TMPro;
 using System;
 using System.Reflection;
+using Unity.VisualScripting;
 
 
 namespace Main.Scripts
@@ -29,7 +30,11 @@ namespace Main.Scripts
         public List<Sprite> _availableCarSprites;
         private List<PlayerInput> _playerList;
         private List<GameObject> _aiCarObjList;
-        
+        private List<InputDevice> _playerDevices;
+        private List<int> _playerDeviceIds;
+        private List<InputDevice> _disconnectedDevices;
+        private List<int> _disconnectedDeviceIds;
+
         private float timer = 6f;
         private float interval = 8f; // Time interval in seconds
 
@@ -64,19 +69,106 @@ namespace Main.Scripts
                 _playerInputManager = GetComponent <PlayerInputManager>();
                 _playerInputManager.onPlayerJoined += OnPlayerJoined;
                 _playerInputManager.onPlayerLeft += OnPlayerLeft;
+                InputSystem.onDeviceChange += OnDeviceChange;
                 _playerList = new();
                 _aiCarObjList = new();
+                _playerDevices = new();
+                _playerDeviceIds = new();
+                _disconnectedDevices = new();
+                _disconnectedDeviceIds = new();
+
                 Instance = this;
             }
+        }
+
+        private void OnDeviceChange(InputDevice dev, InputDeviceChange change)
+        {
+            //unplugging and replugging fire multiple events
+            //use removed and reconnected for matching with players
+            switch (change)
+            {
+                case InputDeviceChange.Removed:
+                    Debug.Log("Device removed!");
+                    _disconnectedDevices.Add(dev);
+                    _disconnectedDeviceIds.Add(dev.deviceId);
+                    break;
+                case InputDeviceChange.Reconnected:
+                    Debug.Log("Device reconnected!");
+                    if (_disconnectedDevices.Contains(dev))
+                    {
+                        //device object stored in _disconnectedDevices will have the new deviceID
+                        Debug.Log("Device match! " + _disconnectedDevices[_disconnectedDevices.IndexOf(dev)] +
+                                  _disconnectedDevices[_disconnectedDevices.IndexOf(dev)].displayName +
+                                  _disconnectedDevices[_disconnectedDevices.IndexOf(dev)].deviceId);
+                        if (_playerDevices.Contains(dev)) _playerDeviceIds[_playerDevices.IndexOf(dev)] = dev.deviceId;
+                        _disconnectedDeviceIds.RemoveAt(_disconnectedDevices.IndexOf(dev));
+                        _disconnectedDevices.Remove(dev);
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            Debug.Log("Changed: " + dev + " Name " + dev.displayName + " DevId " + dev.deviceId);
+
+            /*
+            int i = -1;
+            foreach (InputDevice id in InputSystem.devices)//playerInput.devices)
+            {
+                i++;
+                Debug.Log("Dev " + i + ": " + id);
+                Debug.Log("Name: " + id.displayName +
+                " DevId: " + id.deviceId +
+                " Manuf: " + id.description.manufacturer +
+                " Prod: " + id.description.product +
+                " Vers: " + id.description.version +
+                " Serial: " + id.description.serial);
+            }
+            foreach (PlayerInput pi in _playerList)
+            {
+                if (pi.devices[0].deviceId == dev.deviceId)
+                    Debug.Log("Player match! " + _playerList.IndexOf(playerInput));
+            }
+            */
         }
 
         // Called when a player joins
         private void OnPlayerJoined(PlayerInput playerInput)
         {
+            //player already using controller = respawning after death
+            if (_playerDevices.Contains(playerInput.devices[0]))
+            {
+                _playerList[_playerDevices.IndexOf(playerInput.devices[0])] = playerInput;
+                _playerDeviceIds[_playerDevices.IndexOf(playerInput.devices[0])] = playerInput.devices[0].deviceId;
+            }
+            //if all colors were assigned and any players have disconnected controllers
+            else if (_playerList.Count == _playerInputManager.maxPlayerCount &&
+                     _playerDevices.Intersect(_disconnectedDevices).ToList().Any())
+            {
+                //first dead player with disconnection gets the new controller
+                for (int i = 0; i < _playerList.Count; i++)
+                {
+                    if (!_playerList[i].isActiveAndEnabled && _disconnectedDeviceIds.Contains(_playerDeviceIds[i]))
+                    {
+                        _playerList[i] = playerInput;
+                        _playerDevices[i] = playerInput.devices[0];
+                        _playerDeviceIds[i] = playerInput.devices[0].deviceId;
+                        i = _playerList.Count;
+                    }
+                }
+            }
+            //new player color
+            else
+            {
+                _playerList.Add(playerInput);
+                _playerDevices.Add(playerInput.devices[0]);
+                _playerDeviceIds.Add(playerInput.devices[0].deviceId);
+            }
+
             SpriteRenderer spriteRenderer = playerInput.gameObject.GetComponent<SpriteRenderer>();
-            spriteRenderer.sprite = _availableCarSprites[playerInput.playerIndex];
-            color = playerColors[playerInput.playerIndex];
-            _playerList.Add(playerInput);
+            if (_playerList.Count <= _playerInputManager.maxPlayerCount)
+                spriteRenderer.sprite = _availableCarSprites[_playerList.IndexOf(playerInput)];
+
             _playerInputManager.onPlayerJoined += OnPlayerJoined;
             _playerInputManager.onPlayerLeft += OnPlayerLeft;
 
@@ -85,14 +177,14 @@ namespace Main.Scripts
         
         private void OnPlayerLeft(PlayerInput playerInput)
         {
-            Debug.Log($"Player {playerInput.playerIndex} has left the game.");
+            Debug.Log($"Player {_playerList.IndexOf(playerInput)} has left the game.");
         }
 
         private void ListenToPlayerHealthChange(PlayerInput playerInput) {
             if (_playerList.Count > 0) {
-               HealthController healthController = _playerList[^1].GetComponent<HealthController>();
+               HealthController healthController = _playerList[_playerList.IndexOf(playerInput)].GetComponent<HealthController>();
                if (healthController != null) {
-                    healthController.healthChangeEvent.AddListener((health) => { OnPlayerHealthChange(health, _playerList.Count - 1); });
+                    healthController.healthChangeEvent.AddListener((health) => { OnPlayerHealthChange(health, _playerList.IndexOf(playerInput)); });
                }
             }
         }
@@ -117,6 +209,7 @@ namespace Main.Scripts
             {
                 _playerInputManager.onPlayerJoined -= OnPlayerJoined;
                 _playerInputManager.onPlayerLeft -= OnPlayerLeft;
+                InputSystem.onDeviceChange -= OnDeviceChange;
             }
         }
 
@@ -149,21 +242,26 @@ namespace Main.Scripts
             
             foreach (PlayerInput player in _playerList)
             {
-                if (_wrapController.SetAtLocation(player.transform.position,
-                                                  !player.GetComponent<BaseVehicle>().GetInverseState())) {
-                    _popCounter.incrementPopped(player.playerIndex);
-
-                    if(player.playerIndex >= 0 && player.playerIndex < _popCounter.bubblesPopped.Length)
+                if (player.GetComponent<BaseVehicle>().gameObject.activeSelf)
+                {
+                    if (_wrapController.SetAtLocation(player.transform.position,
+                                                      !player.GetComponent<BaseVehicle>().GetInverseState()))
                     {
-                        if (_popCounter.bubblesPopped[player.playerIndex] >= winningScore)
+                        _popCounter.incrementPopped(_playerList.IndexOf(player));
+
+                        if (_playerList.IndexOf(player) >= 0 && _playerList.IndexOf(player) < _popCounter.bubblesPopped.Length)
                         {
-                            winPanel.SetActive(true);
-                            string text = "Player " + color + " wins!\n Popped " + winningScore + " bubbles!";
-                            winText.text = text;
-                            Time.timeScale = 0f; // Pause the game
+                            if (_popCounter.bubblesPopped[_playerList.IndexOf(player)] >= winningScore)
+                            {
+                                winPanel.SetActive(true);
+                                color = playerColors[_playerList.IndexOf(player)];
+                                string text = "Player " + color + " wins!\n Popped " + winningScore + " bubbles!";
+                                winText.text = text;
+                                Time.timeScale = 0f; // Pause the game
+                            }
+                            else if (_popCounter.bubblesPopped[_playerList.IndexOf(player)] > highScore)
+                                highScore = _popCounter.bubblesPopped[_playerList.IndexOf(player)];
                         }
-                        else if (_popCounter.bubblesPopped[player.playerIndex] > highScore)
-                            highScore = _popCounter.bubblesPopped[player.playerIndex];
                     }
                 }
             }
